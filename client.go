@@ -73,8 +73,16 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 
 		// Update Authorization header and retry
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.Token))
-		return c.HTTPClient.Do(req)
+		resp, err = c.HTTPClient.Do(req)
 	}
 
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return resp, fmt.Errorf("api error: status %d", resp.StatusCode)
+	}
+
+	return resp, nil
 }

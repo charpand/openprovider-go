@@ -60,10 +60,6 @@ func Login(c HTTPClient, baseURL, ipAddress, username, password string) (*string
 		}
 	}()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("api error: status %d", resp.StatusCode)
-	}
-
 	var results LoginResponse
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
 		return nil, err
