@@ -19,3 +19,11 @@ import "github.com/charpand/openprovider-go/domains"
 
 results, err := domains.List(client)
 ```
+
+### Get Domain
+
+```go
+import "github.com/charpand/openprovider-go/domains"
+
+domain, err := domains.Get(client, 123)
+```
