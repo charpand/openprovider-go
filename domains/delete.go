@@ -43,7 +43,8 @@ func Delete(c *openprovider.Client, id int) error {
 		return err
 	}
 
-	if !result.Data.Success {
+	// Check if the API returned an error code (non-zero typically indicates error)
+	if result.Code != 0 {
 		return fmt.Errorf("delete operation failed with code %d", result.Code)
 	}
 
