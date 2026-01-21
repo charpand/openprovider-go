@@ -43,5 +43,9 @@ func Delete(c *openprovider.Client, id int) error {
 		return err
 	}
 
+	if !result.Data.Success {
+		return fmt.Errorf("delete operation failed with code %d", result.Code)
+	}
+
 	return nil
 }
