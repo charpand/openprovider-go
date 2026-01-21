@@ -39,5 +39,20 @@ func TestGetDomain(t *testing.T) {
 
 	if domain == nil {
 		t.Log("Note: No domain returned by mock server (check your swagger examples)")
+		return
+	}
+
+	if domain.Domain.Name == "" {
+		t.Errorf("Expected domain name to be populated")
+	}
+
+	// Based on the swagger example
+	if domain.ID == 123456789 {
+		if domain.Domain.Name != "test4" {
+			t.Errorf("Expected domain name test4, got %s", domain.Domain.Name)
+		}
+		if domain.Domain.Extension != "london" {
+			t.Errorf("Expected domain extension london, got %s", domain.Domain.Extension)
+		}
 	}
 }
