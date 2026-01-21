@@ -166,14 +166,12 @@ func TestGetDomain(t *testing.T) {
 
 Add usage examples to `API.md`:
 
-```markdown
 ### Get Domain
 
-\`\`\`go
+```go
 import "github.com/charpand/openprovider-go/domains"
 
 domain, err := domains.Get(client, 123)
-\`\`\`
 ```
 
 ## Code Style Guidelines
