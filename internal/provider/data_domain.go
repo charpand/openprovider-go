@@ -129,13 +129,13 @@ func (d *DomainDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.ID = types.StringValue(domainName)
 	state.Name = types.StringValue(domainName)
 	state.Status = types.StringValue(domain.Status)
-	
+
 	// Map contact handles
 	state.OwnerHandle = types.StringValue(domain.OwnerHandle)
 	state.AdminHandle = types.StringValue(domain.AdminHandle)
 	state.TechHandle = types.StringValue(domain.TechHandle)
 	state.BillingHandle = types.StringValue(domain.BillingHandle)
-	
+
 	// Map autorenew
 	if domain.Autorenew == "on" {
 		state.Autorenew = types.BoolValue(true)

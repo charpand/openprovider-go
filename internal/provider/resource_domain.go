@@ -140,10 +140,10 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	createReq := &client.CreateDomainRequest{}
 	createReq.Domain.Name = name
 	createReq.Domain.Extension = extension
-	
+
 	// Set required owner handle
 	createReq.OwnerHandle = plan.OwnerHandle.ValueString()
-	
+
 	// Set optional contact handles
 	if !plan.AdminHandle.IsNull() {
 		createReq.AdminHandle = plan.AdminHandle.ValueString()
@@ -154,12 +154,12 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	if !plan.BillingHandle.IsNull() {
 		createReq.BillingHandle = plan.BillingHandle.ValueString()
 	}
-	
+
 	// Set period if specified
 	if !plan.Period.IsNull() {
 		createReq.Period = int(plan.Period.ValueInt64())
 	}
-	
+
 	// Set autorenew
 	if !plan.Autorenew.IsNull() && plan.Autorenew.ValueBool() {
 		createReq.Autorenew = "on"
@@ -179,10 +179,10 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Set ID to the domain name
 	plan.ID = types.StringValue(domainName)
-	
+
 	// Update plan with computed values from the API response
 	plan.Status = types.StringValue(domain.Status)
-	
+
 	// Map contact handles from response
 	plan.OwnerHandle = types.StringValue(domain.OwnerHandle)
 	if domain.AdminHandle != "" {
@@ -194,7 +194,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	if domain.BillingHandle != "" {
 		plan.BillingHandle = types.StringValue(domain.BillingHandle)
 	}
-	
+
 	// Map autorenew from response
 	if domain.Autorenew == "on" {
 		plan.Autorenew = types.BoolValue(true)
@@ -238,13 +238,13 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 	state.ID = types.StringValue(domainName)
 	state.Name = types.StringValue(domainName)
 	state.Status = types.StringValue(domain.Status)
-	
+
 	// Map contact handles
 	state.OwnerHandle = types.StringValue(domain.OwnerHandle)
 	state.AdminHandle = types.StringValue(domain.AdminHandle)
 	state.TechHandle = types.StringValue(domain.TechHandle)
 	state.BillingHandle = types.StringValue(domain.BillingHandle)
-	
+
 	// Map autorenew
 	if domain.Autorenew == "on" {
 		state.Autorenew = types.BoolValue(true)
