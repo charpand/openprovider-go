@@ -57,6 +57,14 @@ func NewClient(config Config) *Client {
 
 // Do executes a request and returns the response. It handles authentication and retries once if the token is expired.
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
+	if c.Token == "" && c.Username != "" && c.Password != "" {
+		token, err := Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
+		if err != nil {
+			return nil, fmt.Errorf("initial authentication failed: %w", err)
+		}
+		c.Token = *token
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	if c.Token != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.Token))

@@ -33,8 +33,9 @@ type LoginResponse struct {
 // Login authenticates a user and returns a token.
 func Login(c HTTPClient, baseURL, ipAddress, username, password string) (*string, error) {
 	request := LoginRequest{
-		Username: username,
-		Password: password,
+		IPAddress: "0.0.0.0",
+		Username:  username,
+		Password:  password,
 	}
 	if ipAddress != "" {
 		request.IPAddress = ipAddress
