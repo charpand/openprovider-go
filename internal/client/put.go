@@ -1,4 +1,4 @@
-// Package domains provides functionality for working with domains.
+// Package client provides a client for interacting with the OpenProvider API.
 package client
 
 import (
@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 )
 
 // UpdateDomainRequest represents a request to update a domain.

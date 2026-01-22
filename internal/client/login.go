@@ -1,4 +1,5 @@
-// Package authentication provides functionality for user authentication with the OpenProvider API.
+// Package client provides a client for interacting with the OpenProvider API, including
+// authentication helper functions.
 package client
 
 import (

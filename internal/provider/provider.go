@@ -1,3 +1,4 @@
+// Package provider implements the Terraform provider for OpenProvider.
 package provider
 
 import (
@@ -12,8 +13,9 @@ import (
 )
 
 // OpenproviderProvider defines the provider implementation.
+// OpenproviderProvider implements the Terraform provider and holds provider-level configuration.
 type OpenproviderProvider struct {
-	// version is set to the provider version on release, forward it to the Service implementation.
+	// version is set to the provider version on release; forwarded to the service implementation.
 	version string
 }
 
@@ -25,12 +27,14 @@ type OpenproviderProviderModel struct {
 	Token    types.String `tfsdk:"token"`
 }
 
-func (p *OpenproviderProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+// Metadata sets the provider type name and version.
+func (p *OpenproviderProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "openprovider"
 	resp.Version = p.version
 }
 
-func (p *OpenproviderProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+// Schema defines the provider schema (configuration) exposed to Terraform.
+func (p *OpenproviderProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
@@ -55,6 +59,7 @@ func (p *OpenproviderProvider) Schema(ctx context.Context, req provider.SchemaRe
 	}
 }
 
+// Configure creates and attaches an API client based on provider configuration.
 func (p *OpenproviderProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var data OpenproviderProviderModel
 
@@ -114,14 +119,18 @@ func (p *OpenproviderProvider) Configure(ctx context.Context, req provider.Confi
 	resp.ResourceData = c
 }
 
-func (p *OpenproviderProvider) Resources(ctx context.Context) []func() resource.Resource {
+// Resources returns the provider's resources. Currently none are registered.
+func (p *OpenproviderProvider) Resources(_ context.Context) []func() resource.Resource {
 	return nil
 }
 
-func (p *OpenproviderProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+// DataSources returns the provider's data sources. Currently none are registered.
+func (p *OpenproviderProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return nil
 }
 
+// New returns a provider factory function that creates an `OpenproviderProvider` with the
+// provided version string.
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &OpenproviderProvider{

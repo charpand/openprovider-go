@@ -1,3 +1,4 @@
+// Package main provides the Terraform provider binary entry point.
 package main
 
 import (
@@ -13,12 +14,12 @@ import (
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 var (
-	// these will be set by the goreleaser configuration
-	// to appropriate values for the compiled binary.
-	version string = "dev"
+	// these will be set by the goreleaser configuration to appropriate values
+	// for the compiled binary.
+	version = "dev"
 
 	// goreleaser can also pass the commit hash of the built binary.
-	// commit  string = ""
+	// commit = ""
 )
 
 func main() {

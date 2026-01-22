@@ -1,4 +1,4 @@
-// Package domains provides functionality for working with domains.
+// Package client provides a client for interacting with the OpenProvider API.
 package client
 
 import (
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 )
 
 // DeleteDomainResponse represents a response for deleting a domain.
