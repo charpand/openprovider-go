@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -38,7 +37,8 @@ func Create(c *Client, req *CreateDomainRequest) (*Domain, error) {
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequest("POST", fmt.Sprintf("%s/v1beta/domains", c.BaseURL), bytes.NewBuffer(body))
+	path := "/v1beta/domains"
+	httpReq, err := http.NewRequest("POST", fmt.Sprintf("%s%s", c.BaseURL, path), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -50,9 +50,7 @@ func Create(c *Client, req *CreateDomainRequest) (*Domain, error) {
 	}
 
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var result CreateDomainResponse

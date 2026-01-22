@@ -17,6 +17,7 @@ type Config struct {
 	BaseURL  string
 	Username string
 	Password string
+	Token    string
 
 	HTTPClient *http.Client
 }
@@ -50,6 +51,7 @@ func NewClient(config Config) *Client {
 		HTTPClient: httpClient,
 		Username:   config.Username,
 		Password:   config.Password,
+		Token:      config.Token,
 	}
 }
 
@@ -63,7 +65,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	resp, err := c.HTTPClient.Do(req)
 	if err == nil && resp.StatusCode == http.StatusUnauthorized && c.Username != "" && c.Password != "" {
 		// Try to login and retry the request
-		token, err := Login(c.HTTPClient, c.BaseURL, "127.0.0.1", c.Username, c.Password)
+		token, err := Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
 		if err != nil {
 			return nil, fmt.Errorf("authentication failed: %w", err)
 		}
