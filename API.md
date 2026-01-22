@@ -3,10 +3,10 @@
 ## Initialization
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-client := openprovider.NewClient(openprovider.Config{
-BaseURL: "https://api.openprovider.eu",
+c := client.NewClient(client.Config{
+	BaseURL: "https://api.openprovider.eu",
 })
 ```
 
@@ -15,49 +15,49 @@ BaseURL: "https://api.openprovider.eu",
 ### List Domains
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/domains"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-results, err := domains.List(client)
+results, err := client.List(c)
 ```
 
 ### Get Domain
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/domains"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-domain, err := domains.Get(client, 123)
+domain, err := client.Get(c, 123)
 ```
 
 ### Create Domain
 
 ```go
-import "github.com/charpand/openprovider-go/domains"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-req := &domains.CreateDomainRequest{}
+req := &client.CreateDomainRequest{}
 req.Domain.Name = "example"
 req.Domain.Extension = "com"
 req.OwnerHandle = "owner123"
 req.Period = 1
 
-domain, err := domains.Create(client, req)
+domain, err := client.Create(c, req)
 ```
 
 ### Update Domain
 
 ```go
-import "github.com/charpand/openprovider-go/domains"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-req := &domains.UpdateDomainRequest{
+req := &client.UpdateDomainRequest{
     Autorenew: "on",
 }
 
-domain, err := domains.Update(client, 123, req)
+domain, err := client.Update(c, 123, req)
 ```
 
 ### Delete Domain
 
 ```go
-import "github.com/charpand/openprovider-go/domains"
+import "github.com/charpand/terraform-provider-openprovider/internal/client"
 
-err := domains.Delete(client, 123)
+err := client.Delete(c, 123)
 ```
