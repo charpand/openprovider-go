@@ -19,7 +19,11 @@ jobs:
           go-version-file: ./go.mod
 
       - name: Run lints
-        run: ./scripts/lint
+        run: |
+          # Run existing linter script
+          ./scripts/lint
+          # Also run go vet to catch additional suspicious code patterns
+          go vet ./...
   test:
     timeout-minutes: 30
     name: test
