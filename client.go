@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/charpand/openprovider-go/authentication"
+	"github.com/charpand/terraform-provider-openprovider/authentication"
 )
 
 const (

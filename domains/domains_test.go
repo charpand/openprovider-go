@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/charpand/openprovider-go"
-	"github.com/charpand/openprovider-go/domains"
-	"github.com/charpand/openprovider-go/internal/testutils"
+	"github.com/charpand/terraform-provider-openprovider"
+	"github.com/charpand/terraform-provider-openprovider/domains"
+	"github.com/charpand/terraform-provider-openprovider/internal/testutils"
 )
 
 func TestListDomains(t *testing.T) {

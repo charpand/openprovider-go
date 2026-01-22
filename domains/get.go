@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/charpand/openprovider-go"
+	"github.com/charpand/terraform-provider-openprovider"
 )
 
 // GetDomainResponse represents a response for a single domain.

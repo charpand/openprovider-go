@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/charpand/openprovider-go"
-	"github.com/charpand/openprovider-go/authentication"
-	"github.com/charpand/openprovider-go/internal/testutils"
+	"github.com/charpand/terraform-provider-openprovider"
+	"github.com/charpand/terraform-provider-openprovider/authentication"
+	"github.com/charpand/terraform-provider-openprovider/internal/testutils"
 )
 
 func TestLogin(t *testing.T) {
