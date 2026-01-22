@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/charpand/terraform-provider-openprovider/internal/client"
+	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -137,7 +138,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	extension := parts[len(parts)-1]
 
 	// Create domain request
-	createReq := &client.CreateDomainRequest{}
+	createReq := &domains.CreateDomainRequest{}
 	createReq.Domain.Name = name
 	createReq.Domain.Extension = extension
 
@@ -168,7 +169,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Create the domain
-	domain, err := client.Create(r.client, createReq)
+	domain, err := domains.Create(r.client, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Domain",
@@ -291,7 +292,7 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Create update request with only changed mutable attributes
 	// Note: OwnerHandle is not updatable (typically immutable after domain creation)
-	updateReq := &client.UpdateDomainRequest{}
+	updateReq := &domains.UpdateDomainRequest{}
 
 	// Update contact handles if changed
 	// Only set values if they are not null in the plan
@@ -315,7 +316,7 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Send update
-	_, err = client.Update(r.client, domain.ID, updateReq)
+	_, err = domains.Update(r.client, domain.ID, updateReq)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Domain",
@@ -361,7 +362,7 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	// Delete the domain
-	err = client.Delete(r.client, domain.ID)
+	err = domains.Delete(r.client, domain.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Domain",
@@ -383,14 +384,14 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 
 // getDomainByName finds a domain by its name using the List API.
 // Returns nil if the domain is not found.
-func getDomainByName(c *client.Client, domainName string) (*client.Domain, error) {
-	domains, err := client.List(c)
+func getDomainByName(c *client.Client, domainName string) (*domains.Domain, error) {
+	domainList, err := domains.List(c)
 	if err != nil {
 		return nil, err
 	}
 
 	// Search for domain by name
-	for _, domain := range domains {
+	for _, domain := range domainList {
 		fullName := domain.Domain.Name + "." + domain.Domain.Extension
 		if fullName == domainName {
 			return &domain, nil

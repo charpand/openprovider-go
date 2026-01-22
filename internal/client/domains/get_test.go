@@ -1,11 +1,13 @@
 // Package domains_test contains tests for the domains package.
-package client
+package domains_test
 
 import (
 	"net/http"
 	"os"
 	"testing"
 
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
+	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 	"github.com/charpand/terraform-provider-openprovider/internal/testutils"
 )
 
@@ -19,17 +21,17 @@ func TestGetDomain(t *testing.T) {
 		Transport: &testutils.MockTransport{RT: http.DefaultTransport},
 	}
 
-	config := Config{
+	config := client.Config{
 		BaseURL:    baseURL,
 		Username:   "test",
 		Password:   "test",
 		HTTPClient: httpClient,
 	}
-	client := NewClient(config)
+	apiClient := client.NewClient(config)
 
 	// Replace 123 with an example ID that exists in your OpenAPI examples/mock
 	// The Prism mock server will return sample data based on the swagger examples.
-	domain, err := Get(client, 123)
+	domain, err := domains.Get(apiClient, 123)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)

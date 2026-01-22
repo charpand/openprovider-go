@@ -1,10 +1,12 @@
-// Package client provides a client for interacting with the OpenProvider API.
-package client
+// Package domains provides functionality for working with domains.
+package domains
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 )
 
 // DeleteDomainResponse represents a response for deleting a domain.
@@ -18,7 +20,7 @@ type DeleteDomainResponse struct {
 // Delete deletes a domain by ID from the Openprovider API.
 //
 // Endpoint: DELETE https://api.eu/v1beta/domains/{id}
-func Delete(c *Client, id int) error {
+func Delete(c *client.Client, id int) error {
 	path := fmt.Sprintf("/v1beta/domains/%d", id)
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {

@@ -1,11 +1,13 @@
-// Package client provides a client for interacting with the OpenProvider API.
-package client
+// Package domains provides functionality for working with domains.
+package domains
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 )
 
 // UpdateDomainRequest represents a request to update a domain.
@@ -26,7 +28,7 @@ type UpdateDomainResponse struct {
 // Update updates an existing domain by ID via the Openprovider API.
 //
 // Endpoint: PUT https://api.eu/v1beta/domains/{id}
-func Update(c *Client, id int, req *UpdateDomainRequest) (*Domain, error) {
+func Update(c *client.Client, id int, req *UpdateDomainRequest) (*Domain, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, err

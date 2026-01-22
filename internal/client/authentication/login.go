@@ -1,6 +1,5 @@
-// Package client provides a client for interacting with the OpenProvider API, including
-// authentication helper functions.
-package client
+// Package authentication provides helper functions for OpenProvider authentication.
+package authentication
 
 import (
 	"bytes"

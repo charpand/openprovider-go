@@ -1,11 +1,13 @@
-// Package client provides a client for interacting with the OpenProvider API.
-package client
+// Package domains provides functionality for working with domains.
+package domains
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 )
 
 // CreateDomainRequest represents a request to create a domain.
@@ -31,7 +33,7 @@ type CreateDomainResponse struct {
 // Create creates a new domain via the Openprovider API.
 //
 // Endpoint: POST https://api.eu/v1beta/domains
-func Create(c *Client, req *CreateDomainRequest) (*Domain, error) {
+func Create(c *client.Client, req *CreateDomainRequest) (*Domain, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, err

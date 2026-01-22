@@ -15,49 +15,49 @@ c := client.NewClient(client.Config{
 ### List Domains
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/internal/client"
+import "github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 
-results, err := client.List(c)
+results, err := domains.List(c)
 ```
 
 ### Get Domain
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/internal/client"
+import "github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 
-domain, err := client.Get(c, 123)
+domain, err := domains.Get(c, 123)
 ```
 
 ### Create Domain
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/internal/client"
+import "github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 
-req := &client.CreateDomainRequest{}
+req := &domains.CreateDomainRequest{}
 req.Domain.Name = "example"
 req.Domain.Extension = "com"
 req.OwnerHandle = "owner123"
 req.Period = 1
 
-domain, err := client.Create(c, req)
+domain, err := domains.Create(c, req)
 ```
 
 ### Update Domain
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/internal/client"
+import "github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 
-req := &client.UpdateDomainRequest{
+req := &domains.UpdateDomainRequest{
     Autorenew: "on",
 }
 
-domain, err := client.Update(c, 123, req)
+domain, err := domains.Update(c, 123, req)
 ```
 
 ### Delete Domain
 
 ```go
-import "github.com/charpand/terraform-provider-openprovider/internal/client"
+import "github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 
-err := client.Delete(c, 123)
+err := domains.Delete(c, 123)
 ```

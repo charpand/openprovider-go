@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/charpand/terraform-provider-openprovider/internal/client/authentication"
 )
 
 const (
@@ -58,7 +60,7 @@ func NewClient(config Config) *Client {
 // Do executes a request and returns the response. It handles authentication and retries once if the token is expired.
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	if c.Token == "" && c.Username != "" && c.Password != "" {
-		token, err := Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
+		token, err := authentication.Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
 		if err != nil {
 			return nil, fmt.Errorf("initial authentication failed: %w", err)
 		}
@@ -73,7 +75,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	resp, err := c.HTTPClient.Do(req)
 	if err == nil && resp.StatusCode == http.StatusUnauthorized && c.Username != "" && c.Password != "" {
 		// Try to login and retry the request
-		token, err := Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
+		token, err := authentication.Login(c.HTTPClient, c.BaseURL, "", c.Username, c.Password)
 		if err != nil {
 			return nil, fmt.Errorf("authentication failed: %w", err)
 		}

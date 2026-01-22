@@ -1,10 +1,12 @@
-// Package client provides functionality for working with domains.
-package client
+// Package domains provides functionality for working with domains.
+package domains
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 )
 
 // Domain represents a domain entity.
@@ -41,7 +43,7 @@ type ListDomainsResponse struct {
 }
 
 // List retrieves a list of domains from the Openprovider API.
-func List(c *Client) ([]Domain, error) {
+func List(c *client.Client) ([]Domain, error) {
 	path := "/v1beta/domains"
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {
