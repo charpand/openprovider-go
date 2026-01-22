@@ -89,7 +89,7 @@ func (p *OpenproviderProvider) Configure(ctx context.Context, req provider.Confi
 	}
 
 	// Validate authentication methods
-	// Requirements: óf token is gezet óf zowel username als password zijn gezet
+	// Requirements: either token is set or both username and password are set
 	if token == "" && (username == "" || password == "") {
 		resp.Diagnostics.AddError(
 			"Missing Authentication Configuration",
@@ -101,20 +101,15 @@ func (p *OpenproviderProvider) Configure(ctx context.Context, req provider.Confi
 		return
 	}
 
-	// Client initialisatie
+	// Client initialization
 	c := client.NewClient(client.Config{
 		BaseURL:  endpoint,
 		Username: username,
 		Password: password,
+		Token:    token,
 	})
 
-	// If token is provided, we might need to set it directly on the client.
-	// Looking at client.go, Client has a Token field, but NewClient doesn't take it in Config.
-	if token != "" {
-		c.Token = token
-	}
-
-	// Client beschikbaar maken
+	// Make client available
 	resp.DataSourceData = c
 	resp.ResourceData = c
 }

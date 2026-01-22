@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -34,16 +33,19 @@ type LoginResponse struct {
 // Login authenticates a user and returns a token.
 func Login(c HTTPClient, baseURL, ipAddress, username, password string) (*string, error) {
 	request := LoginRequest{
-		IPAddress: ipAddress,
-		Username:  username,
-		Password:  password,
+		Username: username,
+		Password: password,
+	}
+	if ipAddress != "" {
+		request.IPAddress = ipAddress
 	}
 	body, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1beta/auth/login", baseURL), bytes.NewBuffer(body))
+	path := "/v1beta/auth/login"
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s", baseURL, path), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -55,10 +57,7 @@ func Login(c HTTPClient, baseURL, ipAddress, username, password string) (*string
 	}
 
 	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var results LoginResponse

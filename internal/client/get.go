@@ -4,7 +4,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -18,7 +17,8 @@ type GetDomainResponse struct {
 //
 // Endpoint: GET https://api.openprovider.eu/v1beta/domains/{id}
 func Get(c *Client, id int) (*Domain, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1beta/domains/%d", c.BaseURL, id), nil)
+	path := fmt.Sprintf("/v1beta/domains/%d", id)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +29,7 @@ func Get(c *Client, id int) (*Domain, error) {
 	}
 
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var result GetDomainResponse

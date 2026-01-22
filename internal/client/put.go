@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -33,7 +32,8 @@ func Update(c *Client, id int, req *UpdateDomainRequest) (*Domain, error) {
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequest("PUT", fmt.Sprintf("%s/v1beta/domains/%d", c.BaseURL, id), bytes.NewBuffer(body))
+	path := fmt.Sprintf("/v1beta/domains/%d", id)
+	httpReq, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", c.BaseURL, path), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +45,7 @@ func Update(c *Client, id int, req *UpdateDomainRequest) (*Domain, error) {
 	}
 
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var result UpdateDomainResponse

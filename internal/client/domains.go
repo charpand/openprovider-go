@@ -4,7 +4,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -43,7 +42,8 @@ type ListDomainsResponse struct {
 
 // List retrieves a list of domains from the Openprovider API.
 func List(c *Client) ([]Domain, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1beta/domains", c.BaseURL), nil)
+	path := "/v1beta/domains"
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,10 +54,7 @@ func List(c *Client) ([]Domain, error) {
 	}
 
 	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var results ListDomainsResponse

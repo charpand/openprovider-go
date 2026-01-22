@@ -4,7 +4,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -20,7 +19,8 @@ type DeleteDomainResponse struct {
 //
 // Endpoint: DELETE https://api.eu/v1beta/domains/{id}
 func Delete(c *Client, id int) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1beta/domains/%d", c.BaseURL, id), nil)
+	path := fmt.Sprintf("/v1beta/domains/%d", id)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {
 		return err
 	}
@@ -31,9 +31,7 @@ func Delete(c *Client, id int) error {
 	}
 
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
-		}
+		_ = resp.Body.Close()
 	}()
 
 	var result DeleteDomainResponse
