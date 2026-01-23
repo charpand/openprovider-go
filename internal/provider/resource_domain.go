@@ -137,11 +137,11 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Parse domain name into name and extension
-	domainName := plan.Name.ValueString()
+	domainName := plan.Domain.ValueString()
 	parts := strings.Split(domainName, ".")
 	if len(parts) < 2 {
 		resp.Diagnostics.AddError(
-			"Invalid Domain Name",
+			"Invalid Domain Domain",
 			fmt.Sprintf("Domain name must include extension (e.g., example.com), got: %s", domainName),
 		)
 		return
@@ -250,7 +250,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	domainName := state.Name.ValueString()
+	domainName := state.Domain.ValueString()
 
 	// Get domain by name (we need to find it via list since API uses ID)
 	domain, err := getDomainByName(r.client, domainName)
@@ -270,7 +270,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Map API response to state
 	state.ID = types.StringValue(domainName)
-	state.Name = types.StringValue(domainName)
+	state.Domain = types.StringValue(domainName)
 	state.Status = types.StringValue(domain.Status)
 
 	// Map contact handles
@@ -315,7 +315,7 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	domainName := state.Name.ValueString()
+	domainName := state.Domain.ValueString()
 
 	// Get domain to get its ID
 	domain, err := getDomainByName(r.client, domainName)
@@ -409,7 +409,7 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	domainName := state.Name.ValueString()
+	domainName := state.Domain.ValueString()
 
 	// Get domain to get its ID
 	domain, err := getDomainByName(r.client, domainName)

@@ -41,7 +41,7 @@ func (d *DomainDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 				MarkdownDescription: "The domain identifier (domain name).",
 				Computed:            true,
 			},
-			"name": schema.StringAttribute{
+			"domain": schema.StringAttribute{
 				MarkdownDescription: "The domain name to look up (e.g., example.com).",
 				Required:            true,
 			},
@@ -104,7 +104,7 @@ func (d *DomainDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	domainName := config.Name.ValueString()
+	domainName := config.Domain.ValueString()
 
 	// Get domain by name
 	domain, err := getDomainByName(d.client, domainName)
@@ -127,7 +127,7 @@ func (d *DomainDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	// Map to state
 	var state DomainModel
 	state.ID = types.StringValue(domainName)
-	state.Name = types.StringValue(domainName)
+	state.Domain = types.StringValue(domainName)
 	state.Status = types.StringValue(domain.Status)
 
 	// Map contact handles
