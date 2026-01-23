@@ -362,9 +362,10 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Update nameservers if changed
 	planNsChanged := len(plan.Nameservers) != len(state.Nameservers)
-	if !planNsChanged && len(plan.Nameservers) > 0 {
+	if !planNsChanged && len(plan.Nameservers) > 0 && len(state.Nameservers) > 0 {
+		// Only compare if both have nameservers and same length
 		for i := range plan.Nameservers {
-			if !plan.Nameservers[i].Hostname.Equal(state.Nameservers[i].Hostname) {
+			if i < len(state.Nameservers) && !plan.Nameservers[i].Hostname.Equal(state.Nameservers[i].Hostname) {
 				planNsChanged = true
 				break
 			}
