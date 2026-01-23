@@ -24,17 +24,11 @@ jobs:
         with:
           go-version-file: ./go.mod
 
-      - name: Install tfplugindocs
-        run: |
-          version=$(go list -m -f '{{.Version}}' github.com/hashicorp/terraform-plugin-docs)
-          GOBIN=$PWD/bin go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@${version}
-          echo "$PWD/bin" >> "$GITHUB_PATH"
-
       - name: Generate docs
         run: ./scripts/docs
 
       - name: Validate docs
-        run: tfplugindocs validate --provider-name openprovider
+        run: go tool tfplugindocs validate --provider-name openprovider --rendered-website-dir docs --website-source-dir templates/docs
 
       - name: Commit docs
         uses: stefanzweifel/git-auto-commit-action@v5

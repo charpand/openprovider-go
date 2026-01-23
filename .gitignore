@@ -7,3 +7,4 @@ Brewfile.lock.json
 openapi-swagger.json
 /terraform-provider-openprovider
 bin/
+docs/commit-message.txt

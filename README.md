@@ -28,11 +28,11 @@ provider "openprovider" {
 
 Registry docs are generated from templates and examples:
 
-- Templates live in `templates/`.
+- Templates live in `templates/docs/`.
 - Examples live in `examples/`.
 - Generated docs live in `docs/`.
 
-To regenerate docs, install `tfplugindocs` and run:
+To regenerate docs, run (uses `go tool tfplugindocs` under Go 1.24):
 
 ```bash
 ./scripts/docs

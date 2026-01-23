@@ -11,7 +11,7 @@ import (
 )
 
 // Run the docs generation tool, check its pride for details.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+//go:generate go tool tfplugindocs generate --provider-name openprovider --rendered-website-dir docs --website-source-dir templates/docs
 
 var (
 	// these will be set by the goreleaser configuration to appropriate values

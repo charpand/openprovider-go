@@ -4,13 +4,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-if ! command -v tfplugindocs >/dev/null 2>&1; then
-  echo "tfplugindocs not found. Install it with:"
-  echo "  go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v0.24.0"
-  exit 1
-fi
-
-tfplugindocs generate \
+go tool tfplugindocs generate \
   --provider-name openprovider \
   --rendered-website-dir docs \
-  --website-source-dir templates
+  --website-source-dir templates/docs
