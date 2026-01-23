@@ -1,28 +1,50 @@
-# Openprovider Go API Library
+# OpenProvider Terraform Provider
 
-A Go client library for the Openprovider.org API.
+Terraform provider for managing Openprovider domains.
 
-## Installation
+## Requirements
 
-```bash
-go get github.com/charpand/terraform-provider-openprovider
+- Terraform >= 1.3
+
+## Usage
+
+```hcl
+terraform {
+  required_providers {
+    openprovider = {
+      source  = "charpand/openprovider"
+      version = ">= 0.1.0"
+    }
+  }
+}
+
+provider "openprovider" {
+  username = var.openprovider_username
+  password = var.openprovider_password
+}
 ```
-
-## Overview
-
-This is a Go client library for the Openprovider.org API, primarily intended for use in the Openprovider Terraform provider.
 
 ## Documentation
 
-API documentation can be found in [API.md](API.md).
+Registry docs are generated from templates and examples:
 
-## Contributing
+- Templates live in `templates/`.
+- Examples live in `examples/`.
+- Generated docs live in `docs/`.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+To regenerate docs, install `tfplugindocs` and run:
 
-## Security
+```bash
+./scripts/docs
+```
 
-If you discover a security vulnerability within this project, please follow the instructions in [SECURITY.md](SECURITY.md).
+## Development
+
+```bash
+./scripts/format
+./scripts/lint
+./scripts/test
+```
 
 ## License
 
