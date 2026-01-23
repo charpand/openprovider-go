@@ -28,7 +28,7 @@ jobs:
         run: ./scripts/docs
 
       - name: Validate docs
-        run: go tool tfplugindocs validate --provider-name openprovider --rendered-website-dir docs --website-source-dir templates/docs
+        run: go tool tfplugindocs validate --provider-name openprovider
 
       - name: Commit docs
         uses: stefanzweifel/git-auto-commit-action@v5
