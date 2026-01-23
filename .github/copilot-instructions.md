@@ -24,6 +24,9 @@ This is a Terraform provider for Openprovider with Go client library code for th
 - All API functions take `*client.Client` as first parameter (from `internal/client`)
 - Use proper error handling and close response bodies in defer statements
 - Create response structs matching the API schema from [Openprovider Swagger docs](https://docs.openprovider.com/swagger.json)
+- Commit messages must follow the changelog-valid convention at
+  https://ec.europa.eu/component-library/v1.15.0/eu/docs/conventions/git/
+  (template: `templates/commit-message.txt`)
 
 ### Testing
 - All tests use the Prism mock server (started automatically by `./scripts/test`)
