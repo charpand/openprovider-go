@@ -14,7 +14,7 @@ type NameserverModel struct {
 // This is separate from the API model and uses Terraform framework types.
 type DomainModel struct {
 	ID            types.String      `tfsdk:"id"`
-	Name          types.String      `tfsdk:"name"`
+	Domain        types.String      `tfsdk:"domain"`
 	Status        types.String      `tfsdk:"status"`
 	Autorenew     types.Bool        `tfsdk:"autorenew"`
 	OwnerHandle   types.String      `tfsdk:"owner_handle"`

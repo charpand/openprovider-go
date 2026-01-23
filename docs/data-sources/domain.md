@@ -25,7 +25,7 @@ data "openprovider_domain" "example" {
 
 ### Required
 
-- `name` (String) The domain name to look up (e.g., example.com).
+- `domain` (String) The domain name to look up (e.g., example.com).
 
 ### Read-Only
 
