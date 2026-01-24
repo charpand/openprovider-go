@@ -24,7 +24,7 @@ type UpdateNSGroupResponse struct {
 
 // Update updates an existing nameserver group by name via the Openprovider API.
 //
-// Endpoint: PUT https://api.eu/v1beta/dns/nameservers/groups/{ns_group}
+// Endpoint: PUT https://api.openprovider.eu/v1beta/dns/nameservers/groups/{ns_group}
 func Update(c *client.Client, name string, req *UpdateNSGroupRequest) (*NSGroup, error) {
 	body, err := json.Marshal(req)
 	if err != nil {

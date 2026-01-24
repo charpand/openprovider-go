@@ -34,7 +34,7 @@ type CreateDomainResponse struct {
 
 // Create creates a new domain via the Openprovider API.
 //
-// Endpoint: POST https://api.eu/v1beta/domains
+// Endpoint: POST https://api.openprovider.eu/v1beta/domains
 func Create(c *client.Client, req *CreateDomainRequest) (*Domain, error) {
 	body, err := json.Marshal(req)
 	if err != nil {

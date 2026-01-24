@@ -29,7 +29,7 @@ type UpdateDomainResponse struct {
 
 // Update updates an existing domain by ID via the Openprovider API.
 //
-// Endpoint: PUT https://api.eu/v1beta/domains/{id}
+// Endpoint: PUT https://api.openprovider.eu/v1beta/domains/{id}
 func Update(c *client.Client, id int, req *UpdateDomainRequest) (*Domain, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
