@@ -12,7 +12,7 @@ import (
 
 // UpdateNSGroupRequest represents a request to update a nameserver group.
 type UpdateNSGroupRequest struct {
-	Name        string       `json:"name,omitempty"`
+	Name        string       `json:"ns_group,omitempty"`
 	Nameservers []Nameserver `json:"name_servers,omitempty"`
 }
 
@@ -22,16 +22,16 @@ type UpdateNSGroupResponse struct {
 	Data NSGroup `json:"data"`
 }
 
-// Update updates an existing nameserver group by ID via the Openprovider API.
+// Update updates an existing nameserver group by name via the Openprovider API.
 //
-// Endpoint: PUT https://api.eu/v1beta/dns/nameservers/groups/{id}
-func Update(c *client.Client, id int, req *UpdateNSGroupRequest) (*NSGroup, error) {
+// Endpoint: PUT https://api.eu/v1beta/dns/nameservers/groups/{ns_group}
+func Update(c *client.Client, name string, req *UpdateNSGroupRequest) (*NSGroup, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
 
-	path := fmt.Sprintf("/v1beta/dns/nameservers/groups/%d", id)
+	path := fmt.Sprintf("/v1beta/dns/nameservers/groups/%s", name)
 	httpReq, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", c.BaseURL, path), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err

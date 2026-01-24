@@ -36,7 +36,7 @@ func TestUpdateNSGroup(t *testing.T) {
 		},
 	}
 
-	group, err := nsgroups.Update(apiClient, 1, req)
+	group, err := nsgroups.Update(apiClient, "test-group", req)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)

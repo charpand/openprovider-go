@@ -4,7 +4,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/charpand/terraform-provider-openprovider/internal/client"
 	"github.com/charpand/terraform-provider-openprovider/internal/client/nsgroups"
@@ -133,8 +132,8 @@ func (r *NSGroupResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Set ID
-	plan.ID = types.StringValue(strconv.Itoa(group.ID))
+	// Set ID to the group name (API uses name as identifier)
+	plan.ID = types.StringValue(group.Name)
 
 	// Update plan with response values
 	plan.Name = types.StringValue(group.Name)
@@ -173,22 +172,15 @@ func (r *NSGroupResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	// Parse ID
-	id, err := strconv.Atoi(state.ID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid NS Group ID",
-			fmt.Sprintf("Could not parse NS group ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
-		return
-	}
+	// Use ID (which is the group name)
+	groupName := state.ID.ValueString()
 
 	// Get NS group
-	group, err := nsgroups.Get(r.client, id)
+	group, err := nsgroups.Get(r.client, groupName)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading NS Group",
-			fmt.Sprintf("Could not read nameserver group %d: %s", id, err.Error()),
+			fmt.Sprintf("Could not read nameserver group %s: %s", groupName, err.Error()),
 		)
 		return
 	}
@@ -200,7 +192,7 @@ func (r *NSGroupResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	// Map API response to state
-	state.ID = types.StringValue(strconv.Itoa(group.ID))
+	state.ID = types.StringValue(group.Name)
 	state.Name = types.StringValue(group.Name)
 
 	// Map nameservers
@@ -242,15 +234,8 @@ func (r *NSGroupResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// Parse ID
-	id, err := strconv.Atoi(state.ID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid NS Group ID",
-			fmt.Sprintf("Could not parse NS group ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
-		return
-	}
+	// Use ID (which is the group name)
+	groupName := state.ID.ValueString()
 
 	// Create update request
 	updateReq := &nsgroups.UpdateNSGroupRequest{}
@@ -291,11 +276,11 @@ func (r *NSGroupResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Send update
-	_, err = nsgroups.Update(r.client, id, updateReq)
+	_, err := nsgroups.Update(r.client, groupName, updateReq)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating NS Group",
-			fmt.Sprintf("Could not update nameserver group %d: %s", id, err.Error()),
+			fmt.Sprintf("Could not update nameserver group %s: %s", groupName, err.Error()),
 		)
 		return
 	}
@@ -319,22 +304,15 @@ func (r *NSGroupResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	// Parse ID
-	id, err := strconv.Atoi(state.ID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid NS Group ID",
-			fmt.Sprintf("Could not parse NS group ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
-		return
-	}
+	// Use ID (which is the group name)
+	groupName := state.ID.ValueString()
 
 	// Delete the NS group
-	err = nsgroups.Delete(r.client, id)
+	err := nsgroups.Delete(r.client, groupName)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting NS Group",
-			fmt.Sprintf("Could not delete nameserver group %d: %s", id, err.Error()),
+			fmt.Sprintf("Could not delete nameserver group %s: %s", groupName, err.Error()),
 		)
 		return
 	}
@@ -342,26 +320,9 @@ func (r *NSGroupResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 // ImportState imports an existing resource into Terraform.
 func (r *NSGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// The import ID can be either numeric ID or name
-	importID := req.ID
+	// The import ID is the group name (API uses name as identifier)
+	groupName := req.ID
 
-	// Try to parse as numeric ID first
-	if id, err := strconv.Atoi(importID); err == nil {
-		// It's a numeric ID
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), strconv.Itoa(id))...)
-		return
-	}
-
-	// Otherwise, treat it as a name and look it up
-	group, err := nsgroups.GetByName(r.client, importID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error Importing NS Group",
-			fmt.Sprintf("Could not find nameserver group with name %s: %s", importID, err.Error()),
-		)
-		return
-	}
-
-	// Set the ID
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), strconv.Itoa(group.ID))...)
+	// Set the ID to the group name
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), groupName)...)
 }

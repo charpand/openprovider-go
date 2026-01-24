@@ -19,7 +19,7 @@ type Nameserver struct {
 // NSGroup represents a nameserver group entity.
 type NSGroup struct {
 	ID          int          `json:"id"`
-	Name        string       `json:"name"`
+	Name        string       `json:"ns_group"`
 	Nameservers []Nameserver `json:"name_servers"`
 	CreatedAt   string       `json:"created_at,omitempty"`
 	UpdatedAt   string       `json:"updated_at,omitempty"`
@@ -64,9 +64,10 @@ func List(c *client.Client) ([]NSGroup, error) {
 	return results.Data.Results, nil
 }
 
-// Get retrieves a specific nameserver group by ID from the Openprovider API.
-func Get(c *client.Client, id int) (*NSGroup, error) {
-	path := fmt.Sprintf("/v1beta/dns/nameservers/groups/%d", id)
+// Get retrieves a specific nameserver group by name from the Openprovider API.
+// The ns_group parameter is the group name.
+func Get(c *client.Client, name string) (*NSGroup, error) {
+	path := fmt.Sprintf("/v1beta/dns/nameservers/groups/%s", name)
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
 	if err != nil {
 		return nil, err

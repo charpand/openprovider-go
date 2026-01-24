@@ -29,7 +29,7 @@ func TestDeleteNSGroup(t *testing.T) {
 	}
 	apiClient := client.NewClient(config)
 
-	err := nsgroups.Delete(apiClient, 1)
+	err := nsgroups.Delete(apiClient, "test-group")
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
