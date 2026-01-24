@@ -24,7 +24,7 @@ type CreateNSGroupResponse struct {
 
 // Create creates a new nameserver group via the Openprovider API.
 //
-// Endpoint: POST https://api.eu/v1beta/dns/nameservers/groups
+// Endpoint: POST https://api.openprovider.eu/v1beta/dns/nameservers/groups
 func Create(c *client.Client, req *CreateNSGroupRequest) (*NSGroup, error) {
 	body, err := json.Marshal(req)
 	if err != nil {

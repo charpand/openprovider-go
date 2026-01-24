@@ -10,7 +10,7 @@ import (
 
 // Delete deletes a nameserver group by name via the Openprovider API.
 //
-// Endpoint: DELETE https://api.eu/v1beta/dns/nameservers/groups/{ns_group}
+// Endpoint: DELETE https://api.openprovider.eu/v1beta/dns/nameservers/groups/{ns_group}
 func Delete(c *client.Client, name string) error {
 	path := fmt.Sprintf("/v1beta/dns/nameservers/groups/%s", name)
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s", c.BaseURL, path), nil)
