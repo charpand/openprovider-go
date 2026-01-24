@@ -12,7 +12,7 @@ import (
 
 // CreateNSGroupRequest represents a request to create a nameserver group.
 type CreateNSGroupRequest struct {
-	Name        string       `json:"name"`
+	Name        string       `json:"ns_group"`
 	Nameservers []Nameserver `json:"name_servers"`
 }
 

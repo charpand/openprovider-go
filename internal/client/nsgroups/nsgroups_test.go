@@ -58,7 +58,7 @@ func TestGetNSGroup(t *testing.T) {
 	}
 	apiClient := client.NewClient(config)
 
-	group, err := nsgroups.Get(apiClient, 1)
+	group, err := nsgroups.Get(apiClient, "test-group")
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
