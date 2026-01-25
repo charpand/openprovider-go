@@ -103,6 +103,7 @@ func (p *OpenproviderProvider) Resources(_ context.Context) []func() resource.Re
 func (p *OpenproviderProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewDomainDataSource,
+		NewNSGroupDataSource,
 	}
 }
 

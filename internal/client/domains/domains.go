@@ -11,10 +11,10 @@ import (
 
 // Nameserver represents a domain nameserver.
 type Nameserver struct {
-	Name   string `json:"name"`
-	IP     string `json:"ip,omitempty"`
-	IP6    string `json:"ip6,omitempty"`
-	SeqNr  int    `json:"seq_nr,omitempty"`
+	Name  string `json:"name"`
+	IP    string `json:"ip,omitempty"`
+	IP6   string `json:"ip6,omitempty"`
+	SeqNr int    `json:"seq_nr,omitempty"`
 }
 
 // Domain represents a domain entity.
