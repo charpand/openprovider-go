@@ -31,6 +31,7 @@ This section guides you through submitting an enhancement suggestion, including 
 *   Follow the Go style guidelines (use `gofmt`).
 *   Ensure the test suite passes by running `./scripts/test`.
 *   Ensure the linter passes by running `./scripts/lint`.
+*   **If you modify provider resources or data sources**, regenerate documentation by running `./scripts/docs` and commit the changes. The CI will verify that docs are up-to-date.
 
 ## Styleguides
 
