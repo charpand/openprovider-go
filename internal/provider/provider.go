@@ -94,6 +94,7 @@ func (p *OpenproviderProvider) Configure(ctx context.Context, req provider.Confi
 // Resources returns the provider's resources.
 func (p *OpenproviderProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		NewCustomerResource,
 		NewDomainResource,
 		NewNSGroupResource,
 	}
@@ -102,6 +103,7 @@ func (p *OpenproviderProvider) Resources(_ context.Context) []func() resource.Re
 // DataSources returns the provider's data sources.
 func (p *OpenproviderProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewCustomerDataSource,
 		NewDomainDataSource,
 		NewNSGroupDataSource,
 	}
