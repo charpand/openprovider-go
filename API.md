@@ -10,6 +10,73 @@ c := client.NewClient(client.Config{
 })
 ```
 
+## Customers
+
+### List Customers
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/customers"
+
+customerList, err := customers.List(c)
+```
+
+### Get Customer
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/customers"
+
+customer, err := customers.Get(c, "XX123456-XX")
+```
+
+### Create Customer
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/customers"
+
+req := &customers.CreateCustomerRequest{
+	Email: "test@example.com",
+	Phone: customers.Phone{
+		CountryCode: "1",
+		AreaCode:    "555",
+		Number:      "1234567",
+	},
+	Address: customers.Address{
+		Street:  "Main St",
+		Number:  "123",
+		City:    "New York",
+		Country: "US",
+		Zipcode: "10001",
+	},
+	Name: customers.Name{
+		FirstName: "John",
+		LastName:  "Doe",
+	},
+}
+
+handle, err := customers.Create(c, req)
+// handle will be something like "XX123456-XX"
+```
+
+### Update Customer
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/customers"
+
+req := &customers.UpdateCustomerRequest{
+	Email: "updated@example.com",
+}
+
+err := customers.Update(c, "XX123456-XX", req)
+```
+
+### Delete Customer
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/customers"
+
+err := customers.Delete(c, "XX123456-XX")
+```
+
 ## Nameserver Groups
 
 ### List NS Groups
