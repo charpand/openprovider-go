@@ -21,7 +21,30 @@ resource "openprovider_domain" "example" {
 }
 ```
 
-### Full
+### With NS Group (Recommended)
+
+```terraform
+resource "openprovider_nsgroup" "my_nameservers" {
+  name = "cloudflare-ns"
+
+  nameservers {
+    name = "ns1.cloudflare.com"
+  }
+
+  nameservers {
+    name = "ns2.cloudflare.com"
+  }
+}
+
+resource "openprovider_domain" "example" {
+  domain       = "example.com"
+  owner_handle = "owner123"
+  period       = 1
+  ns_group     = openprovider_nsgroup.my_nameservers.name
+}
+```
+
+### Full (Legacy Nameservers)
 
 ```terraform
 resource "openprovider_domain" "prod" {
@@ -59,7 +82,8 @@ resource "openprovider_domain" "prod" {
 - `admin_handle` (String) The admin contact handle for the domain.
 - `autorenew` (Boolean) Whether the domain should auto-renew.
 - `billing_handle` (String) The billing contact handle for the domain.
-- `nameserver` (Block List) List of nameservers for the domain. (see [below for nested schema](#nestedblock--nameserver))
+- `nameserver` (Block List, Deprecated) List of nameservers for the domain. **Deprecated:** Use `ns_group` instead. (see [below for nested schema](#nestedblock--nameserver))
+- `ns_group` (String) The nameserver group to use for this domain. Use this instead of nameserver blocks.
 - `period` (Number) Registration period in years.
 - `tech_handle` (String) The tech contact handle for the domain.
 
