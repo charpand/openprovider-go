@@ -97,20 +97,6 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:            true,
 			},
 		},
-		Blocks: map[string]schema.Block{
-			"nameserver": schema.ListNestedBlock{
-				MarkdownDescription: "List of nameservers for the domain. **Deprecated:** Use `ns_group` instead.",
-				DeprecationMessage:  "Use the ns_group attribute instead. This block will be removed in a future version.",
-				NestedObject: schema.NestedBlockObject{
-					Attributes: map[string]schema.Attribute{
-						"hostname": schema.StringAttribute{
-							MarkdownDescription: "The hostname of the nameserver (e.g., ns1.example.com).",
-							Required:            true,
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -186,31 +172,11 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		createReq.Autorenew = "off"
 	}
 
-	// Validate that only one of nameservers or ns_group is specified
-	hasNameservers := len(plan.Nameservers) > 0
 	hasNSGroup := !plan.NSGroup.IsNull() && plan.NSGroup.ValueString() != ""
-
-	if hasNameservers && hasNSGroup {
-		resp.Diagnostics.AddError(
-			"Conflicting Configuration",
-			"Cannot specify both nameserver blocks and ns_group. Please use ns_group for nameserver configuration.",
-		)
-		return
-	}
 
 	// Set ns_group if specified (preferred method)
 	if hasNSGroup {
 		createReq.NSGroup = plan.NSGroup.ValueString()
-	}
-
-	// Set nameservers if specified (deprecated method for backward compatibility)
-	if hasNameservers {
-		createReq.Nameservers = make([]domains.Nameserver, len(plan.Nameservers))
-		for i, ns := range plan.Nameservers {
-			createReq.Nameservers[i] = domains.Nameserver{
-				Name: ns.Hostname.ValueString(),
-			}
-		}
 	}
 
 	// Create the domain
@@ -253,16 +219,6 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		plan.NSGroup = types.StringValue(domain.NSGroup)
 	} else {
 		plan.NSGroup = types.StringNull()
-	}
-
-	// Map nameservers from response (for backward compatibility)
-	if len(domain.Nameservers) > 0 {
-		plan.Nameservers = make([]NameserverModel, len(domain.Nameservers))
-		for i, ns := range domain.Nameservers {
-			plan.Nameservers[i] = NameserverModel{
-				Hostname: types.StringValue(ns.Name),
-			}
-		}
 	}
 
 	// Save state
@@ -320,18 +276,6 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		state.NSGroup = types.StringValue(domain.NSGroup)
 	} else {
 		state.NSGroup = types.StringNull()
-	}
-
-	// Map nameservers (for backward compatibility)
-	if len(domain.Nameservers) > 0 {
-		state.Nameservers = make([]NameserverModel, len(domain.Nameservers))
-		for i, ns := range domain.Nameservers {
-			state.Nameservers[i] = NameserverModel{
-				Hostname: types.StringValue(ns.Name),
-			}
-		}
-	} else {
-		state.Nameservers = []NameserverModel{}
 	}
 
 	diags = resp.State.Set(ctx, &state)
@@ -396,17 +340,7 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	// Validate that only one of nameservers or ns_group is specified in plan
-	hasNameservers := len(plan.Nameservers) > 0
 	hasNSGroup := !plan.NSGroup.IsNull() && plan.NSGroup.ValueString() != ""
-
-	if hasNameservers && hasNSGroup {
-		resp.Diagnostics.AddError(
-			"Conflicting Configuration",
-			"Cannot specify both nameserver blocks and ns_group. Please use ns_group for nameserver configuration.",
-		)
-		return
-	}
 
 	// Update ns_group if changed
 	if !plan.NSGroup.Equal(state.NSGroup) {
@@ -415,26 +349,6 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		} else {
 			// Explicitly clear ns_group if it's being removed
 			updateReq.NSGroup = ""
-		}
-	}
-
-	// Update nameservers if changed (for backward compatibility)
-	planNsChanged := len(plan.Nameservers) != len(state.Nameservers)
-	if !planNsChanged && len(plan.Nameservers) > 0 && len(state.Nameservers) > 0 {
-		// Only compare if both have nameservers and same length
-		for i := range plan.Nameservers {
-			if i < len(state.Nameservers) && !plan.Nameservers[i].Hostname.Equal(state.Nameservers[i].Hostname) {
-				planNsChanged = true
-				break
-			}
-		}
-	}
-	if planNsChanged {
-		updateReq.Nameservers = make([]domains.Nameserver, len(plan.Nameservers))
-		for i, ns := range plan.Nameservers {
-			updateReq.Nameservers[i] = domains.Nameserver{
-				Name: ns.Hostname.ValueString(),
-			}
 		}
 	}
 

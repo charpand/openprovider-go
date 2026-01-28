@@ -1,6 +1,6 @@
 .PHONY: all bootstrap lint test format docs
 
-all: format lint test docs
+all: format lint test docs validate
 
 bootstrap:
 	./scripts/bootstrap
@@ -16,3 +16,6 @@ format:
 
 docs:
 	./scripts/docs
+
+validate:
+	go tool tfplugindocs validate --provider-name openprovider

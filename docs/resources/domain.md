@@ -118,7 +118,6 @@ resource "openprovider_domain" "prod" {
 - `admin_handle` (String) The admin contact handle for the domain.
 - `autorenew` (Boolean) Whether the domain should auto-renew.
 - `billing_handle` (String) The billing contact handle for the domain.
-- `nameserver` (Block List, Deprecated) List of nameservers for the domain. **Deprecated:** Use `ns_group` instead. (see [below for nested schema](#nestedblock--nameserver))
 - `ns_group` (String) The nameserver group to use for this domain. Use this instead of nameserver blocks.
 - `period` (Number) Registration period in years.
 - `tech_handle` (String) The tech contact handle for the domain.
@@ -127,14 +126,6 @@ resource "openprovider_domain" "prod" {
 
 - `id` (String) The domain identifier (domain name).
 - `status` (String) The current status of the domain.
-
-<a id="nestedblock--nameserver"></a>
-### Nested Schema for `nameserver`
-
-Required:
-
-- `hostname` (String) The hostname of the nameserver (e.g., ns1.example.com).
-
 
 
 
