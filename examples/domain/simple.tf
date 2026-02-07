@@ -1,5 +1,5 @@
 resource "openprovider_domain" "example" {
-  domain       = "example.com"
+  name         = "example.com"
   owner_handle = "owner123"
   period       = 1
 }

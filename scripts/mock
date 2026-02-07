@@ -25,6 +25,24 @@ fi
 echo "==> Starting mock server with ${URL}"
 
 # Run prism mock on the given spec
+# If the URL is an http(s) URL, download it to a temporary file first to avoid
+# certain Node/Prism resolver issues related to AbortSignal instances.
+downloaded_spec=""
+if [[ "$URL" =~ ^https?:// ]]; then
+  tmpfile=$(mktemp .tmp-openapi-swagger.json)
+  echo "Downloading ${URL} to ${tmpfile}"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "${URL}" -o "${tmpfile}"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO "${tmpfile}" "${URL}"
+  else
+    echo "Error: neither curl nor wget is available to download ${URL}" >&2
+    exit 1
+  fi
+  downloaded_spec="${tmpfile}"
+  URL="${downloaded_spec}"
+fi
+
 if [ "$1" == "--daemon" ]; then
   npm exec --package=@stoplight/prism-cli@5.14.2 -- prism mock "$URL" &> .prism.log &
 
@@ -43,4 +61,9 @@ if [ "$1" == "--daemon" ]; then
   echo
 else
   npm exec --package=@stoplight/prism-cli@5.14.2 -- prism mock "$URL"
+fi
+
+# Cleanup downloaded temp file on exit
+if [ -n "${downloaded_spec}" ]; then
+  rm -f "${downloaded_spec}"
 fi
