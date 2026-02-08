@@ -89,12 +89,14 @@ resource "openprovider_domain" "dnssec" {
   period       = 1
   autorenew    = true
 
-  ds_records {
-    algorithm  = 8
-    flags      = 257
-    protocol   = 3
-    public_key = "AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3..."
-  }
+  ds_records = [
+    {
+      algorithm  = 8
+      flags      = 257
+      protocol   = 3
+      public_key = "AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3..."
+    }
+  ]
 }
 ```
 

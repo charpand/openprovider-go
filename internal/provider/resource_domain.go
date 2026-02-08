@@ -25,6 +25,15 @@ var (
 	_ resource.ResourceWithImportState = &DomainResource{}
 )
 
+// dsRecordsAttrTypes defines the attribute types for DS records.
+// This is used consistently across Create, Read, and Update operations.
+var dsRecordsAttrTypes = map[string]attr.Type{
+	"algorithm":  types.Int64Type,
+	"flags":      types.Int64Type,
+	"protocol":   types.Int64Type,
+	"public_key": types.StringType,
+}
+
 // DomainResource is the resource implementation.
 type DomainResource struct {
 	client *client.Client
@@ -278,12 +287,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 			})
 		}
 		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
-			AttrTypes: map[string]attr.Type{
-				"algorithm":  types.Int64Type,
-				"flags":      types.Int64Type,
-				"protocol":   types.Int64Type,
-				"public_key": types.StringType,
-			},
+			AttrTypes: dsRecordsAttrTypes,
 		}, dsRecords)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
@@ -292,12 +296,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		plan.DSRecords = listValue
 	} else {
 		plan.DSRecords = types.ListNull(types.ObjectType{
-			AttrTypes: map[string]attr.Type{
-				"algorithm":  types.Int64Type,
-				"flags":      types.Int64Type,
-				"protocol":   types.Int64Type,
-				"public_key": types.StringType,
-			},
+			AttrTypes: dsRecordsAttrTypes,
 		})
 	}
 
@@ -370,12 +369,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 			})
 		}
 		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
-			AttrTypes: map[string]attr.Type{
-				"algorithm":  types.Int64Type,
-				"flags":      types.Int64Type,
-				"protocol":   types.Int64Type,
-				"public_key": types.StringType,
-			},
+			AttrTypes: dsRecordsAttrTypes,
 		}, dsRecords)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
@@ -384,12 +378,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		state.DSRecords = listValue
 	} else {
 		state.DSRecords = types.ListNull(types.ObjectType{
-			AttrTypes: map[string]attr.Type{
-				"algorithm":  types.Int64Type,
-				"flags":      types.Int64Type,
-				"protocol":   types.Int64Type,
-				"public_key": types.StringType,
-			},
+			AttrTypes: dsRecordsAttrTypes,
 		})
 	}
 
