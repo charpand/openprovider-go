@@ -17,6 +17,15 @@ type Nameserver struct {
 	SeqNr int    `json:"seq_nr,omitempty"`
 }
 
+// DnssecKey represents a DNSSEC key/DS record.
+type DnssecKey struct {
+	Alg      int    `json:"alg"`
+	Flags    int    `json:"flags"`
+	Protocol int    `json:"protocol"`
+	PubKey   string `json:"pub_key"`
+	Readonly int    `json:"readonly,omitempty"`
+}
+
 // Domain represents a domain entity.
 type Domain struct {
 	ID             int          `json:"id"`
@@ -37,6 +46,7 @@ type Domain struct {
 	TechHandle     string       `json:"tech_handle"`
 	Nameservers    []Nameserver `json:"name_servers,omitempty"`
 	NSGroup        string       `json:"ns_group,omitempty"`
+	DnssecKeys     []DnssecKey  `json:"dnssec_keys,omitempty"`
 	Domain         struct {
 		Name      string `json:"name"`
 		Extension string `json:"extension"`

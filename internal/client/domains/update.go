@@ -19,6 +19,7 @@ type UpdateDomainRequest struct {
 	IsLocked      *bool        `json:"is_locked,omitempty"`
 	Nameservers   []Nameserver `json:"name_servers,omitempty"`
 	NSGroup       string       `json:"ns_group,omitempty"`
+	DnssecKeys    []DnssecKey  `json:"dnssec_keys,omitempty"`
 }
 
 // UpdateDomainResponse represents a response for updating a domain.
