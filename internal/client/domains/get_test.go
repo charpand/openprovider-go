@@ -2,8 +2,11 @@
 package domains_test
 
 import (
+	"net/http"
+	"os"
 	"testing"
 
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 	"github.com/charpand/terraform-provider-openprovider/internal/testutils"
 )
@@ -36,5 +39,42 @@ func TestGetDomain(t *testing.T) {
 		if domain.Domain.Extension != "london" {
 			t.Errorf("Expected domain extension london, got %s", domain.Domain.Extension)
 		}
+	}
+}
+
+func TestGetDomainWithError(t *testing.T) {
+	baseURL := os.Getenv("TEST_API_BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:4010"
+	}
+
+	httpClient := &http.Client{
+		Transport: &testutils.ErrorMockTransport{
+			RT:         http.DefaultTransport,
+			StatusCode: http.StatusNotFound,
+		},
+	}
+
+	config := client.Config{
+		BaseURL:    baseURL,
+		Username:   "test",
+		Password:   "test",
+		HTTPClient: httpClient,
+	}
+	apiClient := client.NewClient(config)
+
+	domain, err := domains.Get(apiClient, 999999)
+
+	if err == nil {
+		t.Fatal("Expected error for 404 status code, got nil")
+	}
+
+	if domain != nil {
+		t.Errorf("Expected nil domain on error, got %v", domain)
+	}
+
+	// Verify error message contains status information
+	if err.Error() == "" {
+		t.Error("Expected non-empty error message")
 	}
 }

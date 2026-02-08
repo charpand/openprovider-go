@@ -2,8 +2,11 @@
 package domains_test
 
 import (
+	"net/http"
+	"os"
 	"testing"
 
+	"github.com/charpand/terraform-provider-openprovider/internal/client"
 	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 	"github.com/charpand/terraform-provider-openprovider/internal/testutils"
 )
@@ -59,5 +62,46 @@ func TestUpdateDomainWithNameservers(t *testing.T) {
 	// Optional: check if nameservers are populated (not a hard failure)
 	if len(domain.Nameservers) == 0 {
 		t.Log("Note: Nameservers not populated by mock server")
+	}
+}
+
+func TestUpdateDomainWithError(t *testing.T) {
+	baseURL := os.Getenv("TEST_API_BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:4010"
+	}
+
+	httpClient := &http.Client{
+		Transport: &testutils.ErrorMockTransport{
+			RT:         http.DefaultTransport,
+			StatusCode: http.StatusInternalServerError,
+		},
+	}
+
+	config := client.Config{
+		BaseURL:    baseURL,
+		Username:   "test",
+		Password:   "test",
+		HTTPClient: httpClient,
+	}
+	apiClient := client.NewClient(config)
+
+	req := &domains.UpdateDomainRequest{
+		Autorenew: "on",
+	}
+
+	domain, err := domains.Update(apiClient, 123, req)
+
+	if err == nil {
+		t.Fatal("Expected error for 500 status code, got nil")
+	}
+
+	if domain != nil {
+		t.Errorf("Expected nil domain on error, got %v", domain)
+	}
+
+	// Verify error message contains status information
+	if err.Error() == "" {
+		t.Error("Expected non-empty error message")
 	}
 }
