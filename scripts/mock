@@ -30,6 +30,11 @@ echo "==> Starting mock server with ${URL}"
 downloaded_spec=""
 if [[ "$URL" =~ ^https?:// ]]; then
   tmpfile=$(mktemp .tmp-openapi-swagger.json.XXXXXX)
+  downloaded_spec="${tmpfile}"
+  
+  # Setup cleanup trap for the temp file
+  trap "rm -f '${downloaded_spec}'" EXIT ERR
+  
   echo "Downloading ${URL} to ${tmpfile}"
   if command -v curl >/dev/null 2>&1; then
     curl -fsSL "${URL}" -o "${tmpfile}"
@@ -39,7 +44,6 @@ if [[ "$URL" =~ ^https?:// ]]; then
     echo "Error: neither curl nor wget is available to download ${URL}" >&2
     exit 1
   fi
-  downloaded_spec="${tmpfile}"
   URL="${downloaded_spec}"
 fi
 
@@ -61,9 +65,4 @@ if [ "$1" == "--daemon" ]; then
   echo
 else
   npm exec --package=@stoplight/prism-cli@5.14.2 -- prism mock "$URL"
-fi
-
-# Cleanup downloaded temp file on exit
-if [ -n "${downloaded_spec}" ]; then
-  rm -f "${downloaded_spec}"
 fi

@@ -14,3 +14,16 @@ func (t *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Prefer", "code=200")
 	return t.RT.RoundTrip(req)
 }
+
+// ErrorMockTransport is a custom http.RoundTripper for testing error scenarios.
+type ErrorMockTransport struct {
+	RT         http.RoundTripper
+	StatusCode int
+}
+
+// RoundTrip adds headers to request a specific error status code from Prism.
+func (t *ErrorMockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "Bearer dummy")
+	req.Header.Set("Prefer", "code="+http.StatusText(t.StatusCode))
+	return t.RT.RoundTrip(req)
+}
