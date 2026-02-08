@@ -18,4 +18,13 @@ type DomainModel struct {
 	BillingHandle types.String `tfsdk:"billing_handle"`
 	Period        types.Int64  `tfsdk:"period"`
 	NSGroup       types.String `tfsdk:"ns_group"`
+	DSRecords     types.List   `tfsdk:"ds_records"`
+}
+
+// DSRecordModel represents a DS record in Terraform state.
+type DSRecordModel struct {
+	Algorithm types.Int64  `tfsdk:"algorithm"`
+	Flags     types.Int64  `tfsdk:"flags"`
+	Protocol  types.Int64  `tfsdk:"protocol"`
+	PublicKey types.String `tfsdk:"public_key"`
 }

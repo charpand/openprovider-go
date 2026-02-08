@@ -8,6 +8,7 @@ import (
 
 	"github.com/charpand/terraform-provider-openprovider/internal/client"
 	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -96,6 +97,30 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				MarkdownDescription: "The nameserver group to use for this domain. Use this instead of nameserver blocks.",
 				Optional:            true,
 			},
+			"ds_records": schema.ListNestedAttribute{
+				MarkdownDescription: "DS records for DNSSEC. Optional.",
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"algorithm": schema.Int64Attribute{
+							MarkdownDescription: "The algorithm number.",
+							Required:            true,
+						},
+						"flags": schema.Int64Attribute{
+							MarkdownDescription: "The flags field (typically 257 for KSK or 256 for ZSK).",
+							Required:            true,
+						},
+						"protocol": schema.Int64Attribute{
+							MarkdownDescription: "The protocol field (typically 3 for DNSSEC).",
+							Required:            true,
+						},
+						"public_key": schema.StringAttribute{
+							MarkdownDescription: "The public key.",
+							Required:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -179,6 +204,26 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		createReq.NSGroup = plan.NSGroup.ValueString()
 	}
 
+	// Set DS records if specified
+	if !plan.DSRecords.IsNull() && len(plan.DSRecords.Elements()) > 0 {
+		var dsRecords []DSRecordModel
+		diags := plan.DSRecords.ElementsAs(ctx, &dsRecords, false)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		createReq.DnssecKeys = make([]domains.DnssecKey, 0, len(dsRecords))
+		for _, dsRecord := range dsRecords {
+			createReq.DnssecKeys = append(createReq.DnssecKeys, domains.DnssecKey{
+				Alg:      int(dsRecord.Algorithm.ValueInt64()),
+				Flags:    int(dsRecord.Flags.ValueInt64()),
+				Protocol: int(dsRecord.Protocol.ValueInt64()),
+				PubKey:   dsRecord.PublicKey.ValueString(),
+			})
+		}
+	}
+
 	// Create the domain
 	domain, err := domains.Create(r.client, createReq)
 	if err != nil {
@@ -219,6 +264,41 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		plan.NSGroup = types.StringValue(domain.NSGroup)
 	} else {
 		plan.NSGroup = types.StringNull()
+	}
+
+	// Map DS records from response
+	if len(domain.DnssecKeys) > 0 {
+		dsRecords := make([]DSRecordModel, 0, len(domain.DnssecKeys))
+		for _, key := range domain.DnssecKeys {
+			dsRecords = append(dsRecords, DSRecordModel{
+				Algorithm: types.Int64Value(int64(key.Alg)),
+				Flags:     types.Int64Value(int64(key.Flags)),
+				Protocol:  types.Int64Value(int64(key.Protocol)),
+				PublicKey: types.StringValue(key.PubKey),
+			})
+		}
+		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"algorithm":  types.Int64Type,
+				"flags":      types.Int64Type,
+				"protocol":   types.Int64Type,
+				"public_key": types.StringType,
+			},
+		}, dsRecords)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		plan.DSRecords = listValue
+	} else {
+		plan.DSRecords = types.ListNull(types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"algorithm":  types.Int64Type,
+				"flags":      types.Int64Type,
+				"protocol":   types.Int64Type,
+				"public_key": types.StringType,
+			},
+		})
 	}
 
 	// Save state
@@ -276,6 +356,41 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		state.NSGroup = types.StringValue(domain.NSGroup)
 	} else {
 		state.NSGroup = types.StringNull()
+	}
+
+	// Map DS records from response
+	if len(domain.DnssecKeys) > 0 {
+		dsRecords := make([]DSRecordModel, 0, len(domain.DnssecKeys))
+		for _, key := range domain.DnssecKeys {
+			dsRecords = append(dsRecords, DSRecordModel{
+				Algorithm: types.Int64Value(int64(key.Alg)),
+				Flags:     types.Int64Value(int64(key.Flags)),
+				Protocol:  types.Int64Value(int64(key.Protocol)),
+				PublicKey: types.StringValue(key.PubKey),
+			})
+		}
+		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"algorithm":  types.Int64Type,
+				"flags":      types.Int64Type,
+				"protocol":   types.Int64Type,
+				"public_key": types.StringType,
+			},
+		}, dsRecords)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		state.DSRecords = listValue
+	} else {
+		state.DSRecords = types.ListNull(types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"algorithm":  types.Int64Type,
+				"flags":      types.Int64Type,
+				"protocol":   types.Int64Type,
+				"public_key": types.StringType,
+			},
+		})
 	}
 
 	diags = resp.State.Set(ctx, &state)
@@ -349,6 +464,31 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		} else {
 			// Explicitly clear ns_group if it's being removed
 			updateReq.NSGroup = ""
+		}
+	}
+
+	// Update DS records if changed
+	if !plan.DSRecords.Equal(state.DSRecords) {
+		if !plan.DSRecords.IsNull() && len(plan.DSRecords.Elements()) > 0 {
+			var dsRecords []DSRecordModel
+			diags := plan.DSRecords.ElementsAs(ctx, &dsRecords, false)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			updateReq.DnssecKeys = make([]domains.DnssecKey, 0, len(dsRecords))
+			for _, dsRecord := range dsRecords {
+				updateReq.DnssecKeys = append(updateReq.DnssecKeys, domains.DnssecKey{
+					Alg:      int(dsRecord.Algorithm.ValueInt64()),
+					Flags:    int(dsRecord.Flags.ValueInt64()),
+					Protocol: int(dsRecord.Protocol.ValueInt64()),
+					PubKey:   dsRecord.PublicKey.ValueString(),
+				})
+			}
+		} else {
+			// Explicitly clear DS records if they're being removed
+			updateReq.DnssecKeys = []domains.DnssecKey{}
 		}
 	}
 
