@@ -23,7 +23,9 @@ type DnssecKey struct {
 	Flags    int    `json:"flags"`
 	Protocol int    `json:"protocol"`
 	PubKey   string `json:"pub_key"`
-	Readonly int    `json:"readonly,omitempty"`
+	// Readonly indicates if this key is read-only and managed by the registry (1) or can be modified (0).
+	// This field is typically set by the API when retrieving existing keys.
+	Readonly int `json:"readonly,omitempty"`
 }
 
 // Domain represents a domain entity.

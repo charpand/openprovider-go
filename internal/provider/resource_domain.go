@@ -9,6 +9,7 @@ import (
 	"github.com/charpand/terraform-provider-openprovider/internal/client"
 	"github.com/charpand/terraform-provider-openprovider/internal/client/domains"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -37,6 +38,54 @@ var dsRecordsAttrTypes = map[string]attr.Type{
 // DomainResource is the resource implementation.
 type DomainResource struct {
 	client *client.Client
+}
+
+// convertDSRecordsToAPI converts DS records from Terraform state to API format.
+func convertDSRecordsToAPI(ctx context.Context, dsRecordsList types.List, diags *diag.Diagnostics) []domains.DnssecKey {
+	if dsRecordsList.IsNull() || len(dsRecordsList.Elements()) == 0 {
+		return nil
+	}
+
+	var dsRecords []DSRecordModel
+	diags.Append(dsRecordsList.ElementsAs(ctx, &dsRecords, false)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	apiKeys := make([]domains.DnssecKey, 0, len(dsRecords))
+	for _, dsRecord := range dsRecords {
+		apiKeys = append(apiKeys, domains.DnssecKey{
+			Alg:      int(dsRecord.Algorithm.ValueInt64()),
+			Flags:    int(dsRecord.Flags.ValueInt64()),
+			Protocol: int(dsRecord.Protocol.ValueInt64()),
+			PubKey:   dsRecord.PublicKey.ValueString(),
+		})
+	}
+	return apiKeys
+}
+
+// mapDnssecKeysToState converts DS records from API format to Terraform state.
+func mapDnssecKeysToState(ctx context.Context, keys []domains.DnssecKey, diags *diag.Diagnostics) types.List {
+	if len(keys) == 0 {
+		return types.ListNull(types.ObjectType{
+			AttrTypes: dsRecordsAttrTypes,
+		})
+	}
+
+	dsRecords := make([]DSRecordModel, 0, len(keys))
+	for _, key := range keys {
+		dsRecords = append(dsRecords, DSRecordModel{
+			Algorithm: types.Int64Value(int64(key.Alg)),
+			Flags:     types.Int64Value(int64(key.Flags)),
+			Protocol:  types.Int64Value(int64(key.Protocol)),
+			PublicKey: types.StringValue(key.PubKey),
+		})
+	}
+	listValue, listDiags := types.ListValueFrom(ctx, types.ObjectType{
+		AttrTypes: dsRecordsAttrTypes,
+	}, dsRecords)
+	diags.Append(listDiags...)
+	return listValue
 }
 
 // NewDomainResource returns a new instance of the domain resource.
@@ -214,23 +263,9 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Set DS records if specified
-	if !plan.DSRecords.IsNull() && len(plan.DSRecords.Elements()) > 0 {
-		var dsRecords []DSRecordModel
-		diags := plan.DSRecords.ElementsAs(ctx, &dsRecords, false)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		createReq.DnssecKeys = make([]domains.DnssecKey, 0, len(dsRecords))
-		for _, dsRecord := range dsRecords {
-			createReq.DnssecKeys = append(createReq.DnssecKeys, domains.DnssecKey{
-				Alg:      int(dsRecord.Algorithm.ValueInt64()),
-				Flags:    int(dsRecord.Flags.ValueInt64()),
-				Protocol: int(dsRecord.Protocol.ValueInt64()),
-				PubKey:   dsRecord.PublicKey.ValueString(),
-			})
-		}
+	createReq.DnssecKeys = convertDSRecordsToAPI(ctx, plan.DSRecords, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	// Create the domain
@@ -276,28 +311,9 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Map DS records from response
-	if len(domain.DnssecKeys) > 0 {
-		dsRecords := make([]DSRecordModel, 0, len(domain.DnssecKeys))
-		for _, key := range domain.DnssecKeys {
-			dsRecords = append(dsRecords, DSRecordModel{
-				Algorithm: types.Int64Value(int64(key.Alg)),
-				Flags:     types.Int64Value(int64(key.Flags)),
-				Protocol:  types.Int64Value(int64(key.Protocol)),
-				PublicKey: types.StringValue(key.PubKey),
-			})
-		}
-		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
-			AttrTypes: dsRecordsAttrTypes,
-		}, dsRecords)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		plan.DSRecords = listValue
-	} else {
-		plan.DSRecords = types.ListNull(types.ObjectType{
-			AttrTypes: dsRecordsAttrTypes,
-		})
+	plan.DSRecords = mapDnssecKeysToState(ctx, domain.DnssecKeys, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	// Save state
@@ -358,28 +374,9 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Map DS records from response
-	if len(domain.DnssecKeys) > 0 {
-		dsRecords := make([]DSRecordModel, 0, len(domain.DnssecKeys))
-		for _, key := range domain.DnssecKeys {
-			dsRecords = append(dsRecords, DSRecordModel{
-				Algorithm: types.Int64Value(int64(key.Alg)),
-				Flags:     types.Int64Value(int64(key.Flags)),
-				Protocol:  types.Int64Value(int64(key.Protocol)),
-				PublicKey: types.StringValue(key.PubKey),
-			})
-		}
-		listValue, diags := types.ListValueFrom(ctx, types.ObjectType{
-			AttrTypes: dsRecordsAttrTypes,
-		}, dsRecords)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		state.DSRecords = listValue
-	} else {
-		state.DSRecords = types.ListNull(types.ObjectType{
-			AttrTypes: dsRecordsAttrTypes,
-		})
+	state.DSRecords = mapDnssecKeysToState(ctx, domain.DnssecKeys, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	diags = resp.State.Set(ctx, &state)
@@ -458,25 +455,12 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Update DS records if changed
 	if !plan.DSRecords.Equal(state.DSRecords) {
-		if !plan.DSRecords.IsNull() && len(plan.DSRecords.Elements()) > 0 {
-			var dsRecords []DSRecordModel
-			diags := plan.DSRecords.ElementsAs(ctx, &dsRecords, false)
-			resp.Diagnostics.Append(diags...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-
-			updateReq.DnssecKeys = make([]domains.DnssecKey, 0, len(dsRecords))
-			for _, dsRecord := range dsRecords {
-				updateReq.DnssecKeys = append(updateReq.DnssecKeys, domains.DnssecKey{
-					Alg:      int(dsRecord.Algorithm.ValueInt64()),
-					Flags:    int(dsRecord.Flags.ValueInt64()),
-					Protocol: int(dsRecord.Protocol.ValueInt64()),
-					PubKey:   dsRecord.PublicKey.ValueString(),
-				})
-			}
-		} else {
-			// Explicitly clear DS records if they're being removed
+		updateReq.DnssecKeys = convertDSRecordsToAPI(ctx, plan.DSRecords, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		// If nil, convert to empty slice to explicitly clear DS records
+		if updateReq.DnssecKeys == nil {
 			updateReq.DnssecKeys = []domains.DnssecKey{}
 		}
 	}
