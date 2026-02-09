@@ -2,16 +2,18 @@
 page_title: "openprovider_domain Resource - terraform-provider-openprovider"
 subcategory: ""
 description: |-
-  Manages an OpenProvider domain.
+  Manages an OpenProvider domain. Supports both domain registration and domain transfer.
 ---
 
 # openprovider_domain (Resource)
 
-Manages an OpenProvider domain.
+Manages an OpenProvider domain. Supports both domain registration and domain transfer. To transfer a domain, provide an auth_code.
 
 ## Example Usage
 
-### Basic
+### Domain Registration
+
+#### Basic
 
 ```terraform
 resource "openprovider_domain" "example" {
@@ -21,7 +23,7 @@ resource "openprovider_domain" "example" {
 }
 ```
 
-### With Customer Handle
+#### With Customer Handle
 
 ```terraform
 # Create a customer for the domain owner
@@ -57,7 +59,7 @@ resource "openprovider_domain" "example" {
 }
 ```
 
-### With NS Group (Recommended)
+#### With NS Group (Recommended)
 
 ```terraform
 resource "openprovider_nsgroup" "my_nameservers" {
@@ -80,7 +82,7 @@ resource "openprovider_domain" "example" {
 }
 ```
 
-### With DS Records (DNSSEC)
+#### With DS Records (DNSSEC)
 
 ```terraform
 resource "openprovider_domain" "dnssec" {
@@ -101,7 +103,7 @@ resource "openprovider_domain" "dnssec" {
 }
 ```
 
-### Full (Legacy Nameservers)
+#### Full (Legacy Nameservers)
 
 ```terraform
 resource "openprovider_domain" "prod" {
@@ -114,6 +116,143 @@ resource "openprovider_domain" "prod" {
   autorenew      = true
 }
 ```
+
+### Domain Transfer
+
+To transfer a domain, provide an `auth_code` obtained from your current registrar.
+
+#### Basic Transfer
+
+```terraform
+# Transfer a domain to OpenProvider with auth code
+variable "auth_code" {
+  type        = string
+  sensitive   = true
+  description = "The authorization code from your current registrar"
+}
+
+resource "openprovider_customer" "owner" {
+  email = "owner@example.com"
+  phone = {
+    country_code = "1"
+    area_code    = "555"
+    number       = "1234567"
+  }
+  address = {
+    street  = "Main St"
+    number  = "123"
+    city    = "New York"
+    country = "US"
+    zipcode = "10001"
+  }
+  name = {
+    first_name = "John"
+    last_name  = "Doe"
+  }
+}
+
+resource "openprovider_domain" "transferred" {
+  domain       = "example.com"
+  auth_code    = var.auth_code
+  owner_handle = openprovider_customer.owner.handle
+  autorenew    = true
+}
+```
+
+#### Transfer with Import Options
+
+```terraform
+# Transfer a domain and import contacts/nameservers from registry
+variable "auth_code" {
+  type        = string
+  sensitive   = true
+  description = "The authorization code from your current registrar"
+}
+
+resource "openprovider_customer" "owner" {
+  email = "owner@example.com"
+  phone = {
+    country_code = "1"
+    area_code    = "555"
+    number       = "1234567"
+  }
+  address = {
+    street  = "Main St"
+    number  = "123"
+    city    = "New York"
+    country = "US"
+    zipcode = "10001"
+  }
+  name = {
+    first_name = "John"
+    last_name  = "Doe"
+  }
+}
+
+resource "openprovider_domain" "transferred" {
+  domain                            = "example.com"
+  auth_code                         = var.auth_code
+  owner_handle                      = openprovider_customer.owner.handle
+  import_contacts_from_registry     = true
+  import_nameservers_from_registry  = true
+  is_private_whois_enabled          = true
+  autorenew                         = true
+}
+```
+
+#### Transfer with NS Group
+
+```terraform
+# Transfer a domain with a specific nameserver group
+variable "auth_code" {
+  type        = string
+  sensitive   = true
+  description = "The authorization code from your current registrar"
+}
+
+resource "openprovider_customer" "owner" {
+  email = "owner@example.com"
+  phone = {
+    country_code = "1"
+    area_code    = "555"
+    number       = "1234567"
+  }
+  address = {
+    street  = "Main St"
+    number  = "123"
+    city    = "New York"
+    country = "US"
+    zipcode = "10001"
+  }
+  name = {
+    first_name = "John"
+    last_name  = "Doe"
+  }
+}
+
+resource "openprovider_nsgroup" "dns" {
+  name = "my-dns-servers"
+  nameservers = [
+    { name = "ns1.example.com" },
+    { name = "ns2.example.com" },
+  ]
+}
+
+resource "openprovider_domain" "transferred" {
+  domain       = "example.com"
+  auth_code    = var.auth_code
+  owner_handle = openprovider_customer.owner.handle
+  ns_group     = openprovider_nsgroup.dns.name
+  autorenew    = true
+}
+```
+
+## Important Notes
+
+- **Transfer vs Registration**: The resource automatically detects whether to register or transfer based on the presence of `auth_code`. If `auth_code` is provided, a transfer is initiated; otherwise, a new domain is registered.
+- **Transfer Process**: Domain transfers typically take 5-7 days to complete. The resource is created once the transfer is initiated (status: `REQ`), not when it completes (status: `ACT`).
+- **Auth Code**: The authorization code (EPP code) must be obtained from your current registrar before initiating the transfer. This field is sensitive and should be stored securely.
+- **Delete Behavior**: For transfers, destroying this resource removes it from Terraform state only; the domain remains at OpenProvider.
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
@@ -129,17 +268,22 @@ resource "openprovider_domain" "prod" {
 ### Optional
 
 - `admin_handle` (String) The admin contact handle for the domain.
+- `auth_code` (String, Sensitive) The EPP/Authorization code for domain transfer (also known as transfer code or auth code). This is obtained from the current registrar. When provided, the domain will be transferred instead of registered.
 - `autorenew` (Boolean) Whether the domain should auto-renew.
 - `billing_handle` (String) The billing contact handle for the domain.
 - `ds_records` (Attributes List) DS records for DNSSEC. Optional. (see [below for nested schema](#nestedatt--ds_records))
+- `import_contacts_from_registry` (Boolean) Import contact data from registry and create handles after transfer. Only applicable for domain transfers. When enabled, contact handle parameters can be omitted.
+- `import_nameservers_from_registry` (Boolean) Import nameservers from registry after transfer. Only applicable for domain transfers. When enabled, nameserver parameters can be omitted.
+- `is_private_whois_enabled` (Boolean) Enable WHOIS privacy protection for the domain. Only applicable for domain transfers.
 - `ns_group` (String) The nameserver group to use for this domain. Use this instead of nameserver blocks.
-- `period` (Number) Registration period in years.
+- `period` (Number) Registration period in years. Only applicable for domain registration (not transfers).
 - `tech_handle` (String) The tech contact handle for the domain.
 
 ### Read-Only
 
+- `expiration_date` (String) The domain expiration date.
 - `id` (String) The domain identifier (domain name).
-- `status` (String) The current status of the domain.
+- `status` (String) The current status of the domain. Common values: REQ (transfer requested), ACT (active/completed).
 
 <a id="nestedatt--ds_records"></a>
 ### Nested Schema for `ds_records`
@@ -161,3 +305,5 @@ Import a domain using the domain name.
 ```shell
 $ terraform import openprovider_domain.example example.com
 ```
+
+**Note for Transferred Domains**: If the domain was transferred to OpenProvider, you must provide the `auth_code` in your Terraform configuration after import, or the resource will show a diff on the next plan.
