@@ -206,6 +206,11 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
+			"is_dnssec_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable DNSSEC for the domain.",
+				Optional:            true,
+				Computed:            true,
+			},
 			"is_private_whois_enabled": schema.BoolAttribute{
 				MarkdownDescription: "Enable WHOIS privacy protection for the domain. Only applicable for domain transfers.",
 				Optional:            true,
@@ -351,6 +356,12 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 			return
 		}
 
+		// Set DNSSEC enabled if specified
+		if !plan.IsDnssecEnabled.IsNull() {
+			enabled := plan.IsDnssecEnabled.ValueBool()
+			createReq.IsDnssecEnabled = &enabled
+		}
+
 		// Create the domain
 		domain, err = domains.Create(r.client, createReq)
 		if err != nil {
@@ -399,6 +410,9 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Map DNSSEC enabled status from response
+	plan.IsDnssecEnabled = types.BoolValue(domain.IsDnssecEnabled)
 
 	// Map expiration date if present
 	if domain.ExpirationDate != "" {
@@ -469,6 +483,9 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Map DNSSEC enabled status from response
+	state.IsDnssecEnabled = types.BoolValue(domain.IsDnssecEnabled)
 
 	// Map expiration date if present
 	if domain.ExpirationDate != "" {
@@ -560,6 +577,14 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		// If nil, convert to empty slice to explicitly clear DNSSEC keys
 		if updateReq.DnssecKeys == nil {
 			updateReq.DnssecKeys = []domains.DnssecKey{}
+		}
+	}
+
+	// Update DNSSEC enabled if changed
+	if !plan.IsDnssecEnabled.Equal(state.IsDnssecEnabled) {
+		if !plan.IsDnssecEnabled.IsNull() {
+			enabled := plan.IsDnssecEnabled.ValueBool()
+			updateReq.IsDnssecEnabled = &enabled
 		}
 	}
 

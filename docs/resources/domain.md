@@ -274,6 +274,7 @@ resource "openprovider_domain" "transferred" {
 - `dnssec_keys` (Attributes List) DNSSEC keys for the domain. Optional. (see [below for nested schema](#nestedatt--dnssec_keys))
 - `import_contacts_from_registry` (Boolean) Import contact data from registry and create handles after transfer. Only applicable for domain transfers. When enabled, contact handle parameters can be omitted.
 - `import_nameservers_from_registry` (Boolean) Import nameservers from registry after transfer. Only applicable for domain transfers. When enabled, nameserver parameters can be omitted.
+- `is_dnssec_enabled` (Boolean) Enable DNSSEC for the domain.
 - `is_private_whois_enabled` (Boolean) Enable WHOIS privacy protection for the domain. Only applicable for domain transfers.
 - `ns_group` (String) The nameserver group to use for this domain. Use this instead of nameserver blocks.
 - `period` (Number) Registration period in years. Only applicable for domain registration (not transfers).
