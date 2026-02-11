@@ -26,15 +26,15 @@ type DNSRecordResource struct {
 
 // DNSRecordModel describes the resource data model.
 type DNSRecordModel struct {
-	ZoneName             types.String `tfsdk:"zone_name"`
-	Name                 types.String `tfsdk:"name"`
-	Type                 types.String `tfsdk:"type"`
-	Value                types.String `tfsdk:"value"`
-	TTL                  types.Int64  `tfsdk:"ttl"`
-	Priority             types.Int64  `tfsdk:"priority"`
-	CreationDate         types.String `tfsdk:"creation_date"`
-	ModificationDate     types.String `tfsdk:"modification_date"`
-	ID                   types.String `tfsdk:"id"`
+	ZoneName         types.String `tfsdk:"zone_name"`
+	Name             types.String `tfsdk:"name"`
+	Type             types.String `tfsdk:"type"`
+	Value            types.String `tfsdk:"value"`
+	TTL              types.Int64  `tfsdk:"ttl"`
+	Priority         types.Int64  `tfsdk:"priority"`
+	CreationDate     types.String `tfsdk:"creation_date"`
+	ModificationDate types.String `tfsdk:"modification_date"`
+	ID               types.String `tfsdk:"id"`
 }
 
 // NewDNSRecordResource returns a new instance of the DNS record resource.

@@ -25,16 +25,16 @@ type SSLProductDataSource struct {
 
 // SSLProductDataSourceModel describes the data source data model.
 type SSLProductDataSourceModel struct {
-	ProductID         types.Int64  `tfsdk:"product_id"`
-	Name              types.String `tfsdk:"name"`
-	BrandName         types.String `tfsdk:"brand_name"`
-	Category          types.String `tfsdk:"category"`
-	Description       types.String `tfsdk:"description"`
-	DeliveryTime      types.String `tfsdk:"delivery_time"`
-	Encryption        types.String `tfsdk:"encryption"`
-	FreeRefundDays    types.Int64  `tfsdk:"free_refund_days"`
-	FreeReissueDays   types.Int64  `tfsdk:"free_reissue_days"`
-	ID                types.String `tfsdk:"id"`
+	ProductID       types.Int64  `tfsdk:"product_id"`
+	Name            types.String `tfsdk:"name"`
+	BrandName       types.String `tfsdk:"brand_name"`
+	Category        types.String `tfsdk:"category"`
+	Description     types.String `tfsdk:"description"`
+	DeliveryTime    types.String `tfsdk:"delivery_time"`
+	Encryption      types.String `tfsdk:"encryption"`
+	FreeRefundDays  types.Int64  `tfsdk:"free_refund_days"`
+	FreeReissueDays types.Int64  `tfsdk:"free_reissue_days"`
+	ID              types.String `tfsdk:"id"`
 }
 
 // NewSSLProductDataSource returns a new instance of the SSL product data source.

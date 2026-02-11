@@ -96,7 +96,7 @@ func CreateRecord(c *client.Client, zoneName string, req *CreateRecordRequest) (
 //
 // Endpoint: PUT https://api.openprovider.eu/v1beta/dns/zones/{name}/records
 // Note: The API uses PUT to update records by filtering on name and type.
-func UpdateRecord(c *client.Client, zoneName string, recordName string, recordType string, req *UpdateRecordRequest) (*Record, error) {
+func UpdateRecord(c *client.Client, zoneName string, _ string, _ string, req *UpdateRecordRequest) (*Record, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, err

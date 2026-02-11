@@ -28,9 +28,9 @@ type Zone struct {
 
 // ListRecordsResponse represents the API response for listing DNS records.
 type ListRecordsResponse struct {
-	Code int                      `json:"code"`
-	Data ListRecordsResponseData  `json:"data"`
-	Desc string                   `json:"desc"`
+	Code int                     `json:"code"`
+	Data ListRecordsResponseData `json:"data"`
+	Desc string                  `json:"desc"`
 }
 
 // ListRecordsResponseData contains the records list data.
@@ -83,9 +83,9 @@ type DeleteRecordResponse struct {
 
 // ListZonesResponse represents the API response for listing DNS zones.
 type ListZonesResponse struct {
-	Code int                    `json:"code"`
-	Data ListZonesResponseData  `json:"data"`
-	Desc string                 `json:"desc"`
+	Code int                   `json:"code"`
+	Data ListZonesResponseData `json:"data"`
+	Desc string                `json:"desc"`
 }
 
 // ListZonesResponseData contains the zones list data.
