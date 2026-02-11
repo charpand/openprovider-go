@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- DNS record management resource (openprovider_dns_record)
+  - Full CRUD operations for DNS records (A, AAAA, CNAME, MX, TXT, NS, SRV, etc.)
+  - Support for TTL and priority fields
+  - DNS zone data source (openprovider_dns_zone)
+- SSL/TLS certificate management
+  - SSL order resource (openprovider_ssl_order)
+  - Full CRUD operations for SSL orders
+  - Renewal and reissue workflows
+  - Autorenew configuration
+  - Additional domains (SANs) support
+  - SSL product data source (openprovider_ssl_product)
+- Comprehensive client library for DNS and SSL operations
+- Unit tests for all new DNS and SSL functionality
+- API documentation with usage examples for DNS and SSL
 - Health check documentation and improvements
 - Contributor Covenant code of conduct
 - .editorconfig for editor defaults

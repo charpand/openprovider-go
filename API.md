@@ -328,3 +328,171 @@ req.ImportNameserversFromRegistry = true
 
 domain, err := domains.Transfer(c, req)
 ```
+
+## DNS Records
+
+### List DNS Records
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+records, err := dns.ListRecords(c, "example.com")
+```
+
+### Get DNS Record
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+record, err := dns.GetRecord(c, "example.com", "www", "A")
+```
+
+### Create DNS Record
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+req := &dns.CreateRecordRequest{
+	Name:     "www",
+	Type:     "A",
+	Value:    "192.0.2.1",
+	TTL:      3600,
+	Priority: 0,
+}
+
+record, err := dns.CreateRecord(c, "example.com", req)
+```
+
+### Update DNS Record
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+req := &dns.UpdateRecordRequest{
+	Name:     "www",
+	Type:     "A",
+	Value:    "192.0.2.2",
+	TTL:      7200,
+}
+
+record, err := dns.UpdateRecord(c, "example.com", "www", "A", req)
+```
+
+### Delete DNS Record
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+err := dns.DeleteRecord(c, "example.com", "www", "A", "192.0.2.1")
+```
+
+### List DNS Zones
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+zones, err := dns.ListZones(c)
+```
+
+### Get DNS Zone
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/dns"
+
+zone, err := dns.GetZone(c, "example.com")
+```
+
+## SSL Certificates
+
+### List SSL Orders
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+orders, err := ssl.ListOrders(c)
+```
+
+### Get SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+order, err := ssl.GetOrder(c, 123)
+```
+
+### Create SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+req := &ssl.CreateSSLOrderRequest{
+	ProductID:          1,
+	CommonName:         "example.com",
+	AdditionalDomains:  []string{"www.example.com"},
+	DomainValidationMethod: "dns",
+	Autorenew:          "on",
+}
+
+order, err := ssl.CreateOrder(c, req)
+```
+
+### Update SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+req := &ssl.UpdateSSLOrderRequest{
+	Autorenew: "on",
+}
+
+order, err := ssl.UpdateOrder(c, 123, req)
+```
+
+### Renew SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+req := &ssl.RenewSSLOrderRequest{
+	Period: 1,
+}
+
+order, err := ssl.RenewOrder(c, 123, req)
+```
+
+### Reissue SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+req := &ssl.ReissueSSLOrderRequest{
+	CommonName: "example.com",
+	AdditionalDomains: []string{"www.example.com"},
+}
+
+order, err := ssl.ReissueOrder(c, 123, req)
+```
+
+### Cancel SSL Order
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+err := ssl.CancelOrder(c, 123)
+```
+
+### List SSL Products
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+products, err := ssl.ListProducts(c)
+```
+
+### Get SSL Product
+
+```go
+import "github.com/charpand/terraform-provider-openprovider/internal/client/ssl"
+
+product, err := ssl.GetProduct(c, 1)
+```
