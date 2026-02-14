@@ -297,7 +297,7 @@ func (r *NSGroupResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(readResp.Diagnostics...)
 }
 
-// Delete deletes the resource and removes the Terraform state on success.
+// Delete removes the resource from Terraform state without deleting the NS group.
 func (r *NSGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state NSGroupModel
 	diags := req.State.Get(ctx, &state)
@@ -309,15 +309,16 @@ func (r *NSGroupResource) Delete(ctx context.Context, req resource.DeleteRequest
 	// Use ID (which is the group name)
 	groupName := state.ID.ValueString()
 
-	// Delete the NS group
-	err := nsgroups.Delete(r.client, groupName)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error Deleting NS Group",
-			fmt.Sprintf("Could not delete nameserver group %s: %s", groupName, err.Error()),
-		)
-		return
-	}
+	// Remove from Terraform state only - do not delete from OpenProvider
+	// NS groups may be referenced by multiple domains and are organizational records
+	// that should be managed with proper business process validation
+	resp.Diagnostics.AddWarning(
+		"NS Group Removed from Terraform State Only",
+		fmt.Sprintf("NS group %s has been removed from your Terraform state but NOT deleted in OpenProvider. "+
+			"The nameserver group still exists and can be reimported. "+
+			"To permanently delete this NS group, use the OpenProvider dashboard directly.",
+			groupName),
+	)
 }
 
 // ImportState imports an existing resource into Terraform.

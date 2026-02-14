@@ -434,15 +434,16 @@ func (r *CustomerResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	handle := state.Handle.ValueString()
 
-	// Delete the customer
-	err := customers.Delete(r.client, handle)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error Deleting Customer",
-			fmt.Sprintf("Could not delete customer %s: %s", handle, err.Error()),
-		)
-		return
-	}
+	// Remove from Terraform state only - do not delete from OpenProvider
+	// Customers may be referenced by multiple domains and are organizational records
+	// that should be managed with proper business process validation
+	resp.Diagnostics.AddWarning(
+		"Customer Removed from Terraform State Only",
+		fmt.Sprintf("Customer %s has been removed from your Terraform state but NOT deleted in OpenProvider. "+
+			"The customer contact still exists and can be reimported. "+
+			"To permanently delete this customer, use the OpenProvider dashboard directly.",
+			handle),
+	)
 }
 
 // ImportState imports an existing resource into Terraform.

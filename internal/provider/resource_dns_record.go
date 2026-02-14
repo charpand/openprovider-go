@@ -9,6 +9,7 @@ import (
 	"github.com/charpand/terraform-provider-openprovider/internal/client/dns"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -35,6 +36,7 @@ type DNSRecordModel struct {
 	CreationDate     types.String `tfsdk:"creation_date"`
 	ModificationDate types.String `tfsdk:"modification_date"`
 	ID               types.String `tfsdk:"id"`
+	AllowDeletion    types.Bool   `tfsdk:"allow_deletion"`
 }
 
 // NewDNSRecordResource returns a new instance of the DNS record resource.
@@ -91,6 +93,12 @@ func (r *DNSRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier for the DNS record (composite of zone_name, name, type, and value).",
 				Computed:            true,
+			},
+			"allow_deletion": schema.BoolAttribute{
+				MarkdownDescription: "Enable deletion of this DNS record. When false (default), the record is removed from Terraform state but preserved in OpenProvider. Set to true to permit actual deletion.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 		},
 	}
@@ -225,7 +233,7 @@ func (r *DNSRecordResource) Update(ctx context.Context, req resource.UpdateReque
 	resp.Diagnostics.Append(diags...)
 }
 
-// Delete deletes the resource and removes the Terraform state on success.
+// Delete deletes the resource based on the allow_deletion flag.
 func (r *DNSRecordResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state DNSRecordModel
 	diags := req.State.Get(ctx, &state)
@@ -239,6 +247,22 @@ func (r *DNSRecordResource) Delete(ctx context.Context, req resource.DeleteReque
 	recordType := state.Type.ValueString()
 	recordValue := state.Value.ValueString()
 
+	// Check if deletion is allowed
+	allowDeletion := !state.AllowDeletion.IsNull() && state.AllowDeletion.ValueBool()
+
+	if !allowDeletion {
+		// Remove from state only - preserve the record in OpenProvider
+		resp.Diagnostics.AddWarning(
+			"DNS Record Removed from Terraform State Only",
+			fmt.Sprintf("DNS record %s.%s (%s) has been removed from your Terraform state but NOT deleted in OpenProvider. "+
+				"The record still exists and can be reimported. "+
+				"To enable deletion, set allow_deletion = true on the resource.",
+				recordName, zoneName, recordType),
+		)
+		return
+	}
+
+	// Proceed with deletion since allow_deletion is true
 	err := dns.DeleteRecord(r.client, zoneName, recordName, recordType, recordValue)
 	if err != nil {
 		resp.Diagnostics.AddError(

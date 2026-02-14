@@ -311,7 +311,7 @@ func (r *SSLOrderResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 }
 
-// Delete deletes the resource and removes the Terraform state on success.
+// Delete removes the resource from Terraform state without canceling the SSL order.
 func (r *SSLOrderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state SSLOrderModel
 	diags := req.State.Get(ctx, &state)
@@ -321,13 +321,16 @@ func (r *SSLOrderResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	orderID := int(state.ID.ValueInt64())
+	commonName := state.CommonName.ValueString()
 
-	err := ssl.CancelOrder(r.client, orderID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error deleting SSL order",
-			fmt.Sprintf("Could not cancel SSL order: %s", err.Error()),
-		)
-		return
-	}
+	// Remove from Terraform state only - do not cancel the SSL order in OpenProvider
+	// SSL orders are long-lived assets with certificate lifecycle implications
+	// Cancellation may incur costs or penalties and should be handled deliberately
+	resp.Diagnostics.AddWarning(
+		"SSL Order Removed from Terraform State Only",
+		fmt.Sprintf("SSL order %d for %s has been removed from your Terraform state but NOT canceled in OpenProvider. "+
+			"The SSL certificate order and active certificate still exist. "+
+			"To cancel or renew this SSL order, use the OpenProvider dashboard directly.",
+			orderID, commonName),
+	)
 }
