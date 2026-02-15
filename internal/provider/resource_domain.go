@@ -289,13 +289,16 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 
 		// Set transfer-specific optional fields
 		if !plan.ImportContactsFromRegistry.IsNull() {
-			transferReq.ImportContactsFromRegistry = plan.ImportContactsFromRegistry.ValueBool()
+			val := plan.ImportContactsFromRegistry.ValueBool()
+			transferReq.ImportContactsFromRegistry = &val
 		}
 		if !plan.ImportNameserversFromRegistry.IsNull() {
-			transferReq.ImportNameserversFromRegistry = plan.ImportNameserversFromRegistry.ValueBool()
+			val := plan.ImportNameserversFromRegistry.ValueBool()
+			transferReq.ImportNameserversFromRegistry = &val
 		}
 		if !plan.IsPrivateWhoisEnabled.IsNull() {
-			transferReq.IsPrivateWhoisEnabled = plan.IsPrivateWhoisEnabled.ValueBool()
+			val := plan.IsPrivateWhoisEnabled.ValueBool()
+			transferReq.IsPrivateWhoisEnabled = &val
 		}
 
 		domain, err = domains.Transfer(r.client, transferReq)

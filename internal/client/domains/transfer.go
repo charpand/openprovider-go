@@ -24,9 +24,9 @@ type TransferDomainRequest struct {
 	Autorenew                     string       `json:"autorenew,omitempty"`
 	NSGroup                       string       `json:"ns_group,omitempty"`
 	Nameservers                   []Nameserver `json:"name_servers,omitempty"`
-	ImportContactsFromRegistry    bool         `json:"import_contacts_from_registry,omitempty"`
-	ImportNameserversFromRegistry bool         `json:"import_nameservers_from_registry,omitempty"`
-	IsPrivateWhoisEnabled         bool         `json:"is_private_whois_enabled,omitempty"`
+	ImportContactsFromRegistry    *bool        `json:"import_contacts_from_registry,omitempty"`
+	ImportNameserversFromRegistry *bool        `json:"import_nameservers_from_registry,omitempty"`
+	IsPrivateWhoisEnabled         *bool        `json:"is_private_whois_enabled,omitempty"`
 }
 
 // TransferDomainResponse represents a response for transferring a domain.
