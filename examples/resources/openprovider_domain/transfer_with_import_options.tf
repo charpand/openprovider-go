@@ -1,4 +1,4 @@
-# Transfer a domain and import contacts/nameservers from registry
+# Transfer a domain with contact and autorenew settings
 variable "auth_code" {
   type        = string
   sensitive   = true
@@ -26,11 +26,8 @@ resource "openprovider_customer" "owner" {
 }
 
 resource "openprovider_domain" "transferred" {
-  domain                            = "example.com"
-  auth_code                         = var.auth_code
-  owner_handle                      = openprovider_customer.owner.handle
-  import_contacts_from_registry     = true
-  import_nameservers_from_registry  = true
-  is_private_whois_enabled          = true
-  autorenew                         = true
+  domain       = "example.com"
+  auth_code    = var.auth_code
+  owner_handle = openprovider_customer.owner.handle
+  autorenew    = true
 }
