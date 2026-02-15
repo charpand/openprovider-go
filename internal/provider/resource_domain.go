@@ -192,6 +192,18 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:            true,
 				Computed:            true,
 			},
+			"import_contacts_from_registry": schema.BoolAttribute{
+				MarkdownDescription: "Import contact data from registry and create handles after transfer. Only applicable for domain transfers. When enabled, contact handle parameters can be omitted.",
+				Optional:            true,
+			},
+			"import_nameservers_from_registry": schema.BoolAttribute{
+				MarkdownDescription: "Import nameservers from registry after transfer. Only applicable for domain transfers. When enabled, nameserver parameters can be omitted.",
+				Optional:            true,
+			},
+			"is_private_whois_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable WHOIS privacy protection for the domain. Only applicable for domain transfers.",
+				Optional:            true,
+			},
 			"expiration_date": schema.StringAttribute{
 				MarkdownDescription: "The domain expiration date.",
 				Computed:            true,
@@ -273,6 +285,17 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 
 		if !plan.NSGroup.IsNull() && plan.NSGroup.ValueString() != "" {
 			transferReq.NSGroup = plan.NSGroup.ValueString()
+		}
+
+		// Set transfer-specific optional fields
+		if !plan.ImportContactsFromRegistry.IsNull() {
+			transferReq.ImportContactsFromRegistry = plan.ImportContactsFromRegistry.ValueBool()
+		}
+		if !plan.ImportNameserversFromRegistry.IsNull() {
+			transferReq.ImportNameserversFromRegistry = plan.ImportNameserversFromRegistry.ValueBool()
+		}
+		if !plan.IsPrivateWhoisEnabled.IsNull() {
+			transferReq.IsPrivateWhoisEnabled = plan.IsPrivateWhoisEnabled.ValueBool()
 		}
 
 		domain, err = domains.Transfer(r.client, transferReq)
